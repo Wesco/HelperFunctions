@@ -192,7 +192,7 @@ Function ImportGaps() As Boolean
                      Parameters:="", _
                      ExecutionTime:=Timer - StartTime, _
                      Result:="Failed - User Aborted"
-            Err.Raise 18
+            ERR.Raise 18
         End If
     Else
         MsgBox Prompt:="Gaps could not be found.", Title:="Gaps not found"
@@ -201,7 +201,7 @@ Function ImportGaps() As Boolean
                  Parameters:="", _
                  ExecutionTime:=Timer - StartTime, _
                  Result:="Failed - Gaps not found"
-        Err.Raise 53
+        ERR.Raise 53
     End If
 
     Application.DisplayAlerts = True
@@ -286,7 +286,7 @@ End Sub
 ' Date : 1/29/2013
 ' Desc : Prompts the user to select a file for import
 '---------------------------------------------------------------------------------------
-Sub UserImportFile(DestRange As Range)
+Sub UserImportFile(DestRange As Range, DelFile As Boolean)
     Dim StartTime As Double         'The time this function was started
     Dim File As String              'Full path to user selected file
     Dim FileDate As String          'Date the file was last modified
@@ -305,6 +305,10 @@ Sub UserImportFile(DestRange As Range)
         ActiveWorkbook.Close
         ThisWorkbook.Activate
 
+        If DelFile = True Then
+            DeleteFile File
+        End If
+
         FillInfo FunctionName:="UserImportFile", _
                  Parameters:="FileName: " & File, _
                  FileDate:=FileDate, _
@@ -320,7 +324,7 @@ Sub UserImportFile(DestRange As Range)
                  ExecutionTime:=Timer - StartTime, _
                  Result:="Failed - User Aborted"
         Sheets("Info").Select
-        Err.Raise 18
+        ERR.Raise 18
     End If
 
 End Sub
@@ -380,10 +384,10 @@ Sub ExportCode()
     Dim comp As Variant
     Dim codeFolder As String
     Dim FileName As String
-    
+
     AddReferences
     codeFolder = CombinePaths(GetWorkbookPath, "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5))
-    
+
     On Error Resume Next
     RecMkDir codeFolder
     On Error GoTo 0
@@ -412,8 +416,20 @@ End Sub
 ' Desc : Deletes a file
 '---------------------------------------------------------------------------------------
 Sub DeleteFile(FileName As String)
-    On Error Resume Next
+    On Error GoTo File_Error
     Kill FileName
+
+    FillInfo FunctionName:="DeleteFile", _
+             Parameters:=FileName, _
+             Result:="Complete"
+    Exit Sub
+
+File_Error:
+    FillInfo FunctionName:="DeleteFile", _
+             Result:="Err #: " & ERR.Number
+    FillInfo FunctionName:="", _
+             Result:="Err Description" & ERR.Description
+
 End Sub
 
 '---------------------------------------------------------------------------------------
