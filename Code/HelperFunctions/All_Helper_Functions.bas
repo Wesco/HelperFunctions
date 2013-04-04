@@ -387,7 +387,7 @@ Sub ExportCode()
 
     'References Microsoft Visual Basic for Applications Extensibility 5.3
     AddReference "{0002E157-0000-0000-C000-000000000046}", 5, 3
-    codeFolder = CombinePaths(GetWorkbookPath, "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5))
+    codeFolder = GetWorkbookPath & "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & "\"
 
     On Error Resume Next
     RecMkDir codeFolder
@@ -396,17 +396,57 @@ Sub ExportCode()
     For Each comp In ThisWorkbook.VBProject.VBComponents
         Select Case comp.Type
             Case 1
-                FileName = CombinePaths(codeFolder, comp.Name & ".bas")
+                FileName = codeFolder & comp.Name & ".bas"
                 DeleteFile FileName
                 comp.Export FileName
             Case 2
-                FileName = CombinePaths(codeFolder, comp.Name & ".cls")
+                FileName = codeFolder & comp.Name & ".cls"
                 DeleteFile FileName
                 comp.Export FileName
             Case 3
-                FileName = CombinePaths(codeFolder, comp.Name & ".frm")
+                FileName = codeFolder & comp.Name & ".frm"
                 DeleteFile FileName
                 comp.Export FileName
+        End Select
+    Next
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : ImportModule
+' Date : 4/4/2013
+' Desc : Imports a code module into VBProject
+'---------------------------------------------------------------------------------------
+Sub ImportModule()
+    Dim comp As Variant
+    Dim codeFolder As String
+    Dim FileName As String
+    Dim WkbkPath As String
+
+    'Adds a reference to Microsoft Visual Basic for Applications Extensibility 5.3
+    AddReference "{0002E157-0000-0000-C000-000000000046}", 5, 3
+
+    'Gets the path to this workbook
+    WkbkPath = Left$(ThisWorkbook.fullName, InStr(1, ThisWorkbook.fullName, ThisWorkbook.Name, vbTextCompare) - 1)
+
+    'Gets the path to this workbooks code
+    codeFolder = WkbkPath & "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5)
+
+    For Each comp In ThisWorkbook.VBProject.VBComponents
+        Select Case comp.Type
+            Case 1
+                'If comp.Name <> "All_Helper_Functions" Then
+                FileName = codeFolder & "\" & comp.Name & ".bas"
+                ThisWorkbook.VBProject.VBComponents.Remove comp
+                ThisWorkbook.VBProject.VBComponents.Import FileName
+                'End If
+            Case 2
+                FileName = CombinePaths(codeFolder, comp.Name & ".cls")
+                DeleteFile FileName
+                comp.Import FileName
+            Case 3
+                FileName = CombinePaths(codeFolder, comp.Name & ".frm")
+                DeleteFile FileName
+                comp.Import FileName
         End Select
     Next
 End Sub
@@ -449,18 +489,6 @@ Function GetWorkbookPath() As String
     pos = InStr(1, fullName, wrkbookName, vbTextCompare)
 
     GetWorkbookPath = Left$(fullName, pos - 1)
-End Function
-
-'---------------------------------------------------------------------------------------
-' Proc : CombinePaths
-' Date : 3/19/2013
-' Desc : Adds folders onto the end of a file path
-'---------------------------------------------------------------------------------------
-Function CombinePaths(ByVal Path1 As String, ByVal Path2 As String) As String
-    If Not EndsWith(Path1, "\") Then
-        Path1 = Path1 & "\"
-    End If
-    CombinePaths = Path1 & Path2
 End Function
 
 '---------------------------------------------------------------------------------------
@@ -530,7 +558,7 @@ Sub ShowReferences()
     [C1].Value = "GUID"
     [D1].Value = "Major"
     [E1].Value = "Minor"
-    
+
     For i = 1 To ThisWorkbook.VBProject.References.Count
         n = i + 1
         With ThisWorkbook.VBProject.References(i)
@@ -542,13 +570,11 @@ Sub ShowReferences()
         End With
     Next
     Columns.AutoFit
-    
+
     Exit Sub
 
 SHEET_EXISTS:
-    ThisWorkbook.Sheets.Add Before:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count), Count:=1
+    ThisWorkbook.Sheets.Add After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count), Count:=1
     ActiveSheet.Name = "VBA References"
     Resume Next
 End Sub
-
-
