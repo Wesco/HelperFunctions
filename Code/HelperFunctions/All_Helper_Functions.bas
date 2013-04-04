@@ -385,7 +385,8 @@ Sub ExportCode()
     Dim codeFolder As String
     Dim FileName As String
 
-    AddReferences
+    'References Microsoft Visual Basic for Applications Extensibility 5.3
+    AddReference "{0002E157-0000-0000-C000-000000000046}", 5, 3
     codeFolder = CombinePaths(GetWorkbookPath, "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5))
 
     On Error Resume Next
@@ -474,36 +475,36 @@ End Function
 '---------------------------------------------------------------------------------------
 ' Proc : AddReferences
 ' Date : 3/19/2013
-' Desc : Adds references required for helper functions
+' Desc : Adds a reference to VBProject
 '---------------------------------------------------------------------------------------
-Sub AddReferences()
+Sub AddReference(GUID As String, Major As Integer, Minor As Integer)
     Dim ID As Variant
     Dim Ref As Variant
     Dim Result As Boolean
 
+
     For Each Ref In ThisWorkbook.VBProject.References
-        If Ref.GUID = "{0002E157-0000-0000-C000-000000000046}" And Ref.Major = 5 And Ref.Minor = 3 Then
+        If Ref.GUID = GUID And Ref.Major = Major And Ref.Minor = Minor Then
             Result = True
         End If
     Next
 
     'References Microsoft Visual Basic for Applications Extensibility 5.3
     If Result = False Then
-        ThisWorkbook.VBProject.References.AddFromGuid "{0002E157-0000-0000-C000-000000000046}", 5, 3
+        ThisWorkbook.VBProject.References.AddFromGuid GUID, Major, Minor
     End If
 End Sub
 
 '---------------------------------------------------------------------------------------
 ' Proc : RemoveReferences
 ' Date : 3/19/2013
-' Desc : Removes references required for helper functions
+' Desc : Removes a reference from VBProject
 '---------------------------------------------------------------------------------------
-Sub RemoveReferences()
+Sub RemoveReference(GUID As String, Major As Integer, Minor As Integer)
     Dim Ref As Variant
 
-    'References Microsoft Visual Basic for Applications Extensibility 5.3
     For Each Ref In ThisWorkbook.VBProject.References
-        If Ref.GUID = "{0002E157-0000-0000-C000-000000000046}" And Ref.Major = 5 And Ref.Minor = 3 Then
+        If Ref.GUID = GUID And Ref.Major = Major And Ref.Minor = Minor Then
             Application.VBE.ActiveVBProject.References.Remove Ref
         End If
     Next
