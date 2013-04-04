@@ -429,26 +429,27 @@ Sub ImportModule()
     WkbkPath = Left$(ThisWorkbook.fullName, InStr(1, ThisWorkbook.fullName, ThisWorkbook.Name, vbTextCompare) - 1)
 
     'Gets the path to this workbooks code
-    codeFolder = WkbkPath & "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5)
+    codeFolder = WkbkPath & "Code\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & "\"
 
     For Each comp In ThisWorkbook.VBProject.VBComponents
-        Select Case comp.Type
-            Case 1
-                'If comp.Name <> "All_Helper_Functions" Then
-                FileName = codeFolder & "\" & comp.Name & ".bas"
-                ThisWorkbook.VBProject.VBComponents.Remove comp
-                ThisWorkbook.VBProject.VBComponents.Import FileName
-                'End If
-            Case 2
-                FileName = CombinePaths(codeFolder, comp.Name & ".cls")
-                DeleteFile FileName
-                comp.Import FileName
-            Case 3
-                FileName = CombinePaths(codeFolder, comp.Name & ".frm")
-                DeleteFile FileName
-                comp.Import FileName
-        End Select
+        If comp.Name <> "All_Helper_Functions" Then
+            Select Case comp.Type
+                Case 1
+                    FileName = codeFolder & comp.Name & ".bas"
+                    ThisWorkbook.VBProject.VBComponents.Remove comp
+                    ThisWorkbook.VBProject.VBComponents.Import FileName
+                Case 2
+                    FileName = codeFolder & comp.Name & ".cls"
+                    ThisWorkbook.VBProject.VBComponents.Remove comp
+                    ThisWorkbook.VBProject.VBComponents.Import FileName
+                Case 3
+                    FileName = codeFolder & comp.Name & ".frm"
+                    ThisWorkbook.VBProject.VBComponents.Remove comp
+                    ThisWorkbook.VBProject.VBComponents.Import FileName
+            End Select
+        End If
     Next
+    
 End Sub
 
 '---------------------------------------------------------------------------------------
