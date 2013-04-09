@@ -409,6 +409,8 @@ Sub ExportCode()
                 comp.Export FileName
         End Select
     Next
+    
+    ThisWorkbook.Saved = True
 End Sub
 
 '---------------------------------------------------------------------------------------
