@@ -16,3 +16,7 @@ Sub SendMail()
           Body:="Multiple attachment test", _
           Attachment:=Array("C:\Users\treische\Desktop\007.png", "C:\Users\treische\Desktop\trollface.png")
 End Sub
+
+Sub test()
+    Import117byISN ReportType.DS, Sheets("Sheet2").Range("A1")
+End Sub

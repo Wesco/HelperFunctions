@@ -6,6 +6,12 @@ Option Explicit
 'Example: "Sleep 1500" will pause for 1.5 seconds
 Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
+'Used when importing 117 to determine the type of report to pull
+Enum ReportType
+    DS
+    BO
+End Enum
+
 '---------------------------------------------------------------------------------------
 ' Proc  : Function FileExists
 ' Date  : 10/10/2012
@@ -334,7 +340,7 @@ End Sub
 ' Date : 1/29/2013
 ' Desc : Used to add a line to the Info sheet
 '---------------------------------------------------------------------------------------
-Sub FillInfo(FunctionName As String, Result As String, Optional ExecutionTime As String = "", Optional Parameters As String = "", Optional FileDate As String = "")
+Sub FillInfo(Optional FunctionName As String = "", Optional Result As String = "", Optional ExecutionTime As String = "", Optional Parameters As String = "", Optional FileDate As String = "")
     Dim Info As Worksheet           'Info worksheet if it exists, else this = nothing
     Dim LastSheet As Worksheet      'The previously selected worksheet
     Dim LastWorkbook As Workbook    'The previously activated workbook
@@ -399,18 +405,28 @@ Sub ExportCode()
                 FileName = codeFolder & comp.Name & ".bas"
                 DeleteFile FileName
                 comp.Export FileName
+                FillInfo FunctionName:="ExportCode", _
+                         Parameters:=FileName, _
+                         FileDate:=Format(Date, "m/dd/yy"), _
+                         Result:="Complete"
             Case 2
                 FileName = codeFolder & comp.Name & ".cls"
                 DeleteFile FileName
                 comp.Export FileName
+                FillInfo FunctionName:="ExportCode", _
+                         Parameters:=FileName, _
+                         FileDate:=Format(Date, "m/dd/yy"), _
+                         Result:="Complete"
             Case 3
                 FileName = codeFolder & comp.Name & ".frm"
                 DeleteFile FileName
                 comp.Export FileName
+                FillInfo FunctionName:="ExportCode", _
+                         Parameters:=FileName, _
+                         FileDate:=Format(Date, "m/dd/yy"), _
+                         Result:="Complete"
         End Select
     Next
-    
-    ThisWorkbook.Saved = True
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -451,7 +467,7 @@ Sub ImportModule()
             End Select
         End If
     Next
-    
+
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -580,4 +596,54 @@ SHEET_EXISTS:
     ThisWorkbook.Sheets.Add After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count), Count:=1
     ActiveSheet.Name = "VBA References"
     Resume Next
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : Import117byISN
+' Date : 4/10/2013
+' Desc : Imports the most recent 117 report for the specified sales number
+'---------------------------------------------------------------------------------------
+Sub Import117byISN(RepType As ReportType, Destination As Range)
+    Dim ISN As String
+    Dim sPath As String
+    Dim FileName As String
+
+    ISN = InputBox("Inside Sales Number:", "Please enter the ISN#")
+
+    If ISN <> "" Then
+        Select Case RepType
+            Case ReportType.DS:
+                FileName = "3615 " & Format(Date, "m-dd-yy") & " DSORDERS.xlsx"
+                
+            Case ReportType.BO:
+                FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
+        End Select
+
+        sPath = "\\br3615gaps\gaps\3615 117 Report\ByInsideSalesNumber\" & ISN & "\" & FileName
+
+        If FileExists(sPath) Then
+            Workbooks.Open sPath
+            ActiveSheet.UsedRange.Copy Destination:=Destination
+            Application.DisplayAlerts = False
+            ActiveWorkbook.Close
+            Application.DisplayAlerts = True
+            Select Case RepType
+                Case ReportType.DS:
+                    FillInfo FunctionName:="Import117byISN", _
+                             Parameters:="Report Type: " & "DS", _
+                             Result:="Complete"
+                    FillInfo Parameters:="Destination: " & Destination.Address(False, False)
+                    
+                Case ReportType.BO:
+                    FillInfo FunctionName:="Import117byISN", _
+                             Parameters:="Report Type: " & "BO", _
+                             Result:="Complete"
+                    FillInfo Parameters:="Destination: " & Destination.Address(False, False)
+            End Select
+        End If
+    Else
+        FillInfo "Import117byISN", "Failed - User Aborted"
+        ERR.Raise 53
+    End If
+
 End Sub
