@@ -487,9 +487,6 @@ Sub DeleteFile(FileName As String)
 File_Error:
     FillInfo FunctionName:="DeleteFile", _
              Result:="Err #: " & ERR.Number
-    FillInfo FunctionName:="", _
-             Result:="Err Description" & ERR.Description
-
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -614,7 +611,7 @@ Sub Import117byISN(RepType As ReportType, Destination As Range)
         Select Case RepType
             Case ReportType.DS:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " DSORDERS.xlsx"
-                
+
             Case ReportType.BO:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
         End Select
@@ -627,23 +624,34 @@ Sub Import117byISN(RepType As ReportType, Destination As Range)
             Application.DisplayAlerts = False
             ActiveWorkbook.Close
             Application.DisplayAlerts = True
-            Select Case RepType
-                Case ReportType.DS:
-                    FillInfo FunctionName:="Import117byISN", _
-                             Parameters:="Report Type: " & "DS", _
-                             Result:="Complete"
-                    FillInfo Parameters:="Destination: " & Destination.Address(False, False)
-                    
-                Case ReportType.BO:
-                    FillInfo FunctionName:="Import117byISN", _
-                             Parameters:="Report Type: " & "BO", _
-                             Result:="Complete"
-                    FillInfo Parameters:="Destination: " & Destination.Address(False, False)
-            End Select
+
+            FillInfo FunctionName:="Import117byISN", _
+                     Parameters:="Sales #: " & ISN, _
+                     Result:="Complete"
+            FillInfo Parameters:="Report Type: " & ReportTypeText(RepType)
+            FillInfo Parameters:="Destination: " & Destination.Address(False, False)
+        Else
+            FillInfo FunctionName:="Import117byISN", _
+                     Parameters:="Sales #: " & ISN, _
+                     Result:="Failed - File Not Found"
+            FillInfo Parameters:="Report Type: " & ReportTypeText(RepType)
+            FillInfo Parameters:="Destination: " & Destination.Address(False, False)
+
         End If
     Else
-        FillInfo "Import117byISN", "Failed - User Aborted"
-        ERR.Raise 53
+        FillInfo "Import117byISN", "Failed - User Aborted", Parameters:="ReportType: " & ReportTypeText(RepType)
+        ERR.Raise 18
     End If
 
 End Sub
+
+Function ReportTypeText(RepType As ReportType) As String
+    Select Case RepType
+        Case ReportType.BO:
+            ReportTypeText = "BO"
+        Case ReportType.DS:
+            ReportTypeText = "DS"
+    End Select
+End Function
+
+
