@@ -600,12 +600,13 @@ End Sub
 ' Date : 4/10/2013
 ' Desc : Imports the most recent 117 report for the specified sales number
 '---------------------------------------------------------------------------------------
-Sub Import117byISN(RepType As ReportType, Destination As Range)
-    Dim ISN As String
+Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal ISN As String = "", Optional Cancel As Boolean = False)
     Dim sPath As String
     Dim FileName As String
 
-    ISN = InputBox("Inside Sales Number:", "Please enter the ISN#")
+    If ISN = "" And Cancel = False Then
+        ISN = InputBox("Inside Sales Number:", "Please enter the ISN#")
+    End If
 
     If ISN <> "" Then
         Select Case RepType
@@ -633,10 +634,11 @@ Sub Import117byISN(RepType As ReportType, Destination As Range)
         Else
             FillInfo FunctionName:="Import117byISN", _
                      Parameters:="Sales #: " & ISN, _
-                     Result:="Failed - File Not Found"
+                     Result:="Failed - File not found"
             FillInfo Parameters:="Report Type: " & ReportTypeText(RepType)
             FillInfo Parameters:="Destination: " & Destination.Address(False, False)
-
+            MsgBox Prompt:=ReportTypeText(RepType) & " report not found.", Title:="Error 53"
+            ERR.Raise 53
         End If
     Else
         FillInfo "Import117byISN", "Failed - User Aborted", Parameters:="ReportType: " & ReportTypeText(RepType)
@@ -645,6 +647,46 @@ Sub Import117byISN(RepType As ReportType, Destination As Range)
 
 End Sub
 
+'---------------------------------------------------------------------------------------
+' Proc : Import473
+' Date : 4/11/2013
+' Desc : Imports a 473 report from the current day
+'---------------------------------------------------------------------------------------
+Sub Import473(Destination As Range)
+    Dim sPath As String
+    Dim FileName As String
+    Dim AlertStatus As Boolean
+
+    FileName = "473 " & Format(Date, "m-dd-yy") & ".xlsx"
+    sPath = "\\br3615gaps\gaps\473 Download\" & FileName
+    AlertStatus = Application.DisplayAlerts
+
+    If FileExists(sPath) Then
+        Workbooks.Open sPath
+        ActiveSheet.UsedRange.Copy Destination:=Destination
+
+        Application.DisplayAlerts = False
+        ActiveWorkbook.Close
+        Application.DisplayAlerts = AlertStatus
+
+        FillInfo FunctionName:="Import473", _
+                 Parameters:=Destination.Address(False, False), _
+                 Result:="Complete"
+    Else
+        FillInfo FunctionName:="Import473", _
+                 Parameters:="Destination: " & Destination.Address(False, False), _
+                 Result:="Failed - File not found"
+        MsgBox Prompt:="473 report not found."
+        ERR.Raise 18
+    End If
+
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : ReportTypeText
+' Date : 4/10/2013
+' Desc : Returns the report type as a string
+'---------------------------------------------------------------------------------------
 Function ReportTypeText(RepType As ReportType) As String
     Select Case RepType
         Case ReportType.BO:
@@ -653,5 +695,37 @@ Function ReportTypeText(RepType As ReportType) As String
             ReportTypeText = "DS"
     End Select
 End Function
+
+'---------------------------------------------------------------------------------------
+' Proc : DeleteColumn
+' Date : 4/11/2013
+' Desc : Removes a column based on text in the column header
+'---------------------------------------------------------------------------------------
+Sub DeleteColumn(HeaderText As String)
+    Dim i As Integer
+
+    For i = ActiveSheet.UsedRange.Columns.Count To 1 Step -1
+        If Trim(Cells(1, i).Value) = HeaderText Then
+            Columns(i).Delete
+            Exit For
+        End If
+    Next
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : FindColumn
+' Date : 4/11/2013
+' Desc : Returns the column number if a match is found
+'---------------------------------------------------------------------------------------
+Sub FindColumn(HeaderText As String)
+    Dim i As Integer: i = 0
+
+    For i = 1 To ActiveSheet.UsedRange.Columns.Count
+        If Trim(Cells(1, i).Value) = HeaderText Then
+            FindColumn = i
+            Exit For
+        End If
+    Next
+End Sub
 
 
