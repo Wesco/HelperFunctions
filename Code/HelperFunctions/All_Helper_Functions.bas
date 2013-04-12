@@ -401,6 +401,7 @@ Sub ExportCode()
     Dim comp As Variant
     Dim codeFolder As String
     Dim FileName As String
+    Dim File As String
 
     'References Microsoft Visual Basic for Applications Extensibility 5.3
     AddReference "{0002E157-0000-0000-C000-000000000046}", 5, 3
@@ -410,19 +411,24 @@ Sub ExportCode()
     RecMkDir codeFolder
     On Error GoTo 0
 
+    'Remove all previously exported modules
+    File = Dir(codeFolder)
+    Do While File <> ""
+        DeleteFile codeFolder & File
+        File = Dir
+    Loop
+
+    'Export modules in current project
     For Each comp In ThisWorkbook.VBProject.VBComponents
         Select Case comp.Type
             Case 1
                 FileName = codeFolder & comp.Name & ".bas"
-                DeleteFile FileName
                 comp.Export FileName
             Case 2
                 FileName = codeFolder & comp.Name & ".cls"
-                DeleteFile FileName
                 comp.Export FileName
             Case 3
                 FileName = codeFolder & comp.Name & ".frm"
-                DeleteFile FileName
                 comp.Export FileName
         End Select
     Next
