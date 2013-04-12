@@ -82,12 +82,12 @@ End Sub
 ' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body"
 '---------------------------------------------------------------------------------------
 Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
+    'Outlook Object Library
+    AddReference "{00062FFF-0000-0000-C000-000000000046}", 9, 4
     Dim s As Variant              'Attachment string if array is passed
-    Dim Mail_Object As Variant    'Outlook application object
-    Dim Mail_Single As Variant    'Email object
+    Dim Mail_Single As MailItem    'Email object
 
-    Set Mail_Object = CreateObject("Outlook.Application")
-    Set Mail_Single = Mail_Object.CreateItem(0)
+    Set Mail_Single = Outlook.Application.CreateItem(olMailItem)
 
     With Mail_Single
         'Add attachments
@@ -96,14 +96,14 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
                 For Each s In Attachment
                     If s <> Empty Then
                         If FileExists(s) = True Then
-                            .attachments.Add s
+                            Mail_Single.attachments.Add s
                         End If
                     End If
                 Next
             Case "String"
                 If Attachment <> Empty Then
                     If FileExists(Attachment) = True Then
-                        .attachments.Add Attachment
+                        Mail_Single.attachments.Add Attachment
                     End If
                 End If
         End Select
@@ -114,10 +114,21 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
         .CC = CC
         .BCC = BCC
         .HTMLbody = Body
+        On Error GoTo SEND_FAILED
         .Send
+        On Error GoTo 0
     End With
+
     'Give the email time to send
     Sleep 1500
+    Exit Sub
+
+SEND_FAILED:
+    With Mail_Single
+        MsgBox "Mail to '" & .To & "' could not be sent."
+        .Delete
+    End With
+    Resume Next
 End Sub
 
 '---------------------------------------------------------------------------------------

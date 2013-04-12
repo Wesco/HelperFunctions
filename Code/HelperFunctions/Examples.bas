@@ -11,7 +11,7 @@ ErrHandler:
 End Sub
 
 Sub SendMail()
-    Email SendTo:="treische@wesco.com", _
+    Email SendTo:="treischewesco.com", _
           Subject:="Attachment test", _
           Body:="Multiple attachment test", _
           Attachment:=Array("C:\Users\treische\Desktop\007.png", "C:\Users\treische\Desktop\trollface.png")
