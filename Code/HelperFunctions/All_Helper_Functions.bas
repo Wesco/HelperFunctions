@@ -82,12 +82,12 @@ End Sub
 ' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body"
 '---------------------------------------------------------------------------------------
 Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
-    'Outlook Object Library
-    AddReference "{00062FFF-0000-0000-C000-000000000046}", 9, 4
     Dim s As Variant              'Attachment string if array is passed
-    Dim Mail_Single As MailItem    'Email object
+    Dim Mail_Object As Variant    'Outlook application object
+    Dim Mail_Single As Variant    'Email object
 
-    Set Mail_Single = Outlook.Application.CreateItem(olMailItem)
+    Set Mail_Object = CreateObject("Outlook.Application")
+    Set Mail_Single = Mail_Object.CreateItem(0)
 
     With Mail_Single
         'Add attachments
