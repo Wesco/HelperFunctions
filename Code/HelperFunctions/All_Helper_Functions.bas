@@ -132,12 +132,12 @@ SEND_FAILED:
 End Sub
 
 '---------------------------------------------------------------------------------------
-' Proc  : Function ImportGaps
+' Proc  : Sub ImportGaps
 ' Date  : 12/12/2012
-' Desc  : Imports gaps to the workbook containing this macro. Returns true upon success.
+' Desc  : Imports gaps to the workbook containing this macro.
 ' Ex    : ImportGaps
 '---------------------------------------------------------------------------------------
-Function ImportGaps() As Boolean
+Sub ImportGaps()
     Dim sPath As String     'Gaps file path
     Dim sName As String     'Gaps Sheet Name
     Dim iCounter As Long    'Counter to decrement the date
@@ -222,14 +222,14 @@ Function ImportGaps() As Boolean
     End If
 
     Application.DisplayAlerts = True
-    Exit Function
+    Exit Sub
 
 CREATE_GAPS:
     ThisWorkbook.Sheets.Add After:=Sheets(ThisWorkbook.Sheets.Count)
     ActiveSheet.Name = "Gaps"
     Resume
 
-End Function
+End Sub
 
 '---------------------------------------------------------------------------------------
 ' Proc : FilterSheet
@@ -740,9 +740,4 @@ Function FindColumn(HeaderText As String) As Integer
         End If
     Next
 End Function
-
-
-
-
-
 
