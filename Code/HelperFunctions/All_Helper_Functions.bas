@@ -9,7 +9,7 @@ Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 'Used when importing 117 to determine the type of report to pull
 Enum ReportType
     DS
-    BO
+    Bo
 End Enum
 
 '---------------------------------------------------------------------------------------
@@ -627,7 +627,7 @@ Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal I
             Case ReportType.DS:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " DSORDERS.xlsx"
 
-            Case ReportType.BO:
+            Case ReportType.Bo:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
         End Select
 
@@ -702,7 +702,7 @@ End Sub
 '---------------------------------------------------------------------------------------
 Function ReportTypeText(RepType As ReportType) As String
     Select Case RepType
-        Case ReportType.BO:
+        Case ReportType.Bo:
             ReportTypeText = "BO"
         Case ReportType.DS:
             ReportTypeText = "DS"
@@ -730,14 +730,20 @@ End Sub
 ' Date : 4/11/2013
 ' Desc : Returns the column number if a match is found
 '---------------------------------------------------------------------------------------
-Function FindColumn(HeaderText As String) As Integer
+Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integer
     Dim i As Integer: i = 0
-
-    For i = 1 To ActiveSheet.UsedRange.Columns.Count
-        If Trim(Cells(1, i).Value) = HeaderText Then
+    
+    If TypeName(SearchArea) = Empty Then
+        SearchArea = ActiveSheet.UsedRange
+    End If
+    
+    For i = 1 To SearchArea.Columns.Count
+        If Trim(SearchArea.Cells(1, i).Value) = HeaderText Then
             FindColumn = i
             Exit For
         End If
     Next
 End Function
+
+
 
