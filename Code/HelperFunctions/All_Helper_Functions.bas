@@ -304,13 +304,11 @@ End Sub
 ' Desc : Prompts the user to select a file for import
 '---------------------------------------------------------------------------------------
 Sub UserImportFile(DestRange As Range, DelFile As Boolean)
-    Dim StartTime As Double         'The time this function was started
     Dim File As String              'Full path to user selected file
     Dim FileDate As String          'Date the file was last modified
     Dim OldDispAlert As Boolean     'Original state of Application.DisplayAlerts
 
     OldDispAlert = Application.DisplayAlerts
-    StartTime = Timer
     File = Application.GetOpenFilename()
 
     Application.DisplayAlerts = False
@@ -325,25 +323,10 @@ Sub UserImportFile(DestRange As Range, DelFile As Boolean)
         If DelFile = True Then
             DeleteFile File
         End If
-
-        FillInfo FunctionName:="UserImportFile", _
-                 Parameters:="FileName: " & File, _
-                 FileDate:=FileDate, _
-                 ExecutionTime:=Timer - StartTime, _
-                 Result:="Complete"
-
-        FillInfo FunctionName:="", _
-                 Parameters:="DestRange: " & DestRange.Address(False, False), _
-                 Result:="Complete"
     Else
-        FillInfo FunctionName:="UserImportFile", _
-                 Parameters:="DestRange: " & DestRange.Address(False, False), _
-                 ExecutionTime:=Timer - StartTime, _
-                 Result:="Failed - User Aborted"
-        Sheets("Info").Select
         ERR.Raise 18
     End If
-
+    Application.DisplayAlerts = OldDispAlert
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -732,11 +715,11 @@ End Sub
 '---------------------------------------------------------------------------------------
 Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integer
     Dim i As Integer: i = 0
-    
+
     If TypeName(SearchArea) = Empty Then
         SearchArea = ActiveSheet.UsedRange
     End If
-    
+
     For i = 1 To SearchArea.Columns.Count
         If Trim(SearchArea.Cells(1, i).Value) = HeaderText Then
             FindColumn = i
