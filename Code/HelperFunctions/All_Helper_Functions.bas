@@ -732,7 +732,24 @@ Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integ
     Next
 End Function
 
+'---------------------------------------------------------------------------------------
+' Proc : ImportSupplierContacts
+' Date : 4/22/2013
+' Desc : Imports the supplier contact master list
+'---------------------------------------------------------------------------------------
+Sub ImportSupplierContacts(Destination As Range)
+    Const sPath As String = "\\br3615gaps\gaps\Contacts\Supplier Contact Master.xlsx"
+    Dim PrevDispAlerts As Boolean
 
+    PrevDispAlerts = Application.DisplayAlerts
+
+    Workbooks.Open sPath
+    ActiveSheet.UsedRange.Copy Destination:=Destination
+    
+    Application.DisplayAlerts = False
+    ActiveWorkbook.Close
+    Application.DisplayAlerts = PrevDispAlerts
+End Sub
 
 
 
