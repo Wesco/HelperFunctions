@@ -729,11 +729,108 @@ Sub ImportSupplierContacts(Destination As Range)
 
     Workbooks.Open sPath
     ActiveSheet.UsedRange.Copy Destination:=Destination
-    
+
     Application.DisplayAlerts = False
     ActiveWorkbook.Close
     Application.DisplayAlerts = PrevDispAlerts
 End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : IncrementVersion
+' Date : 4/24/2013
+' Desc : Increments the macros version number
+'---------------------------------------------------------------------------------------
+Sub IncrementVersion()
+    Dim sPath As String
+    Dim LocalPath As String
+    Dim Ver As Variant
+    Dim FileNum As Integer
+    Dim i As Integer
+
+    sPath = "\\7938-HP02\Shared\Macro Versions\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    LocalPath = GetWorkbookPath & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    FileNum = FreeFile
+
+    If FileExists(sPath) = True Then
+        Open sPath For Input As #FileNum
+        While Not EOF(FileNum)
+            Line Input #FileNum, Ver
+        Wend
+        Close FileNum
+
+        Ver = Replace(Ver, ".", "")
+
+        'If version gets to 9.9.9, start over at version 1.0.0
+        If Ver = 999 Then
+            Ver = 100
+        Else
+            Ver = Ver + 1
+        End If
+
+        Ver = Left(Ver, 1) & "." & Mid(Ver, 2, 1) & "." & Right(Ver, 1)
+
+        Open sPath For Output As #FileNum
+        Print #FileNum, Ver
+        Close #FileNum
+
+        Open LocalPath For Output As #FileNum
+        Print #FileNum, Ver
+        Close #FileNum
+    Else
+        Open sPath For Output As #FileNum
+        Print #FileNum, "1.0.0"
+        Close #FileNum
+
+        Open LocalPath For Output As #FileNum
+        Print #FileNum, "1.0.0"
+        Close #FileNum
+    End If
+
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : CheckForUpdates
+' Date : 4/24/2013
+' Desc : Checks to see if the macro is up to date
+'---------------------------------------------------------------------------------------
+Sub CheckForUpdates()
+    Dim Ver As String
+    Dim LocalVer As String
+    Dim sPath As String
+    Dim LocalPath As String
+    Dim FileNum As Integer
+
+    sPath = "\\7938-HP02\Shared\Macro Versions\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    LocalPath = GetWorkbookPath & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    FileNum = FreeFile
+
+    If FileExists(sPath) = True Then
+        Open sPath For Input As #FileNum
+        While Not EOF(FileNum)
+            Line Input #FileNum, Ver
+        Wend
+        Close FileNum
+
+        Open LocalPath For Input As #FileNum
+        While Not EOF(FileNum)
+            Line Input #FileNum, LocalVer
+        Wend
+        Close FileNum
+        
+        If Ver <> LocalVer Then
+            MsgBox Prompt:="An update is available. Please close the macro and get the latest version!", Title:="Update Available"
+        End If
+    End If
+
+End Sub
+
+
+
+
+
+
+
+
 
 
 
