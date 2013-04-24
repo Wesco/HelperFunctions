@@ -288,7 +288,6 @@ Sub FilterSheet(sFilter As String, ColNum As Integer, Match As Boolean)
              "Complete"
 End Sub
 
-
 '---------------------------------------------------------------------------------------
 ' Proc : UserImportFile
 ' Date : 1/29/2013
@@ -307,9 +306,11 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
         FileDate = Format(FileDateTime(File), "mm/dd/yy")
         Workbooks.Open File
         If ShowAllData = True Then
+            On Error Resume Next
             ActiveSheet.AutoFilter.ShowAllData
             ActiveSheet.UsedRange.Columns.Hidden = False
             ActiveSheet.UsedRange.Rows.Hidden = False
+            On Error GoTo 0
         End If
         ActiveSheet.UsedRange.Copy Destination:=DestRange
         ActiveWorkbook.Close
@@ -617,22 +618,10 @@ Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal I
             Application.DisplayAlerts = False
             ActiveWorkbook.Close
             Application.DisplayAlerts = True
-
-            FillInfo FunctionName:="Import117byISN", _
-                     Parameters:="Sales #: " & ISN, _
-                     Result:="Complete"
-            FillInfo Parameters:="Report Type: " & ReportTypeText(RepType)
-            FillInfo Parameters:="Destination: " & Destination.Address(False, False)
         Else
-            FillInfo FunctionName:="Import117byISN", _
-                     Parameters:="Sales #: " & ISN, _
-                     Result:="Failed - File not found"
-            FillInfo Parameters:="Report Type: " & ReportTypeText(RepType)
-            FillInfo Parameters:="Destination: " & Destination.Address(False, False)
             MsgBox Prompt:=ReportTypeText(RepType) & " report not found.", Title:="Error 53"
         End If
     Else
-        FillInfo "Import117byISN", "Failed - Missing ISN", Parameters:="ReportType: " & ReportTypeText(RepType)
         ERR.Raise 18
     End If
 
@@ -785,7 +774,6 @@ Sub IncrementVersion()
         Print #FileNum, "1.0.0"
         Close #FileNum
     End If
-
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -821,16 +809,4 @@ Sub CheckForUpdates()
             MsgBox Prompt:="An update is available. Please close the macro and get the latest version!", Title:="Update Available"
         End If
     End If
-
 End Sub
-
-
-
-
-
-
-
-
-
-
-
