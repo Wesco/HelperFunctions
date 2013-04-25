@@ -693,8 +693,8 @@ End Sub
 Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integer
     Dim i As Integer: i = 0
 
-    If TypeName(SearchArea) = Empty Then
-        SearchArea = ActiveSheet.UsedRange
+    If TypeName(SearchArea) = "Nothing" Or TypeName(SearchArea) = Empty Then
+        Set SearchArea = ActiveSheet.UsedRange
     End If
 
     For i = 1 To SearchArea.Columns.Count
