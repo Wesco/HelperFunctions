@@ -730,21 +730,17 @@ End Sub
 ' Desc : Increments the macros version number
 '---------------------------------------------------------------------------------------
 Sub IncrementVersion()
-    Dim sPath As String
-    Dim LocalPath As String
+    Dim Path As String
     Dim Ver As Variant
     Dim FileNum As Integer
     Dim i As Integer
 
-    sPath = "\\7938-HP02\Shared\Macro Versions\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
-    LocalPath = GetWorkbookPath & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    Path = GetWorkbookPath & "Version.txt"
     FileNum = FreeFile
 
-    If FileExists(sPath) = True Then
-        Open sPath For Input As #FileNum
-        While Not EOF(FileNum)
-            Line Input #FileNum, Ver
-        Wend
+    If FileExists(Path) = True Then
+        Open Path For Input As #FileNum
+        Line Input #FileNum, Ver
         Close FileNum
 
         Ver = Replace(Ver, ".", "")
@@ -758,19 +754,11 @@ Sub IncrementVersion()
 
         Ver = Left(Ver, 1) & "." & Mid(Ver, 2, 1) & "." & Right(Ver, 1)
 
-        Open sPath For Output As #FileNum
-        Print #FileNum, Ver
-        Close #FileNum
-
-        Open LocalPath For Output As #FileNum
+        Open Path For Output As #FileNum
         Print #FileNum, Ver
         Close #FileNum
     Else
-        Open sPath For Output As #FileNum
-        Print #FileNum, "1.0.0"
-        Close #FileNum
-
-        Open LocalPath For Output As #FileNum
+        Open Path For Output As #FileNum
         Print #FileNum, "1.0.0"
         Close #FileNum
     End If
@@ -781,32 +769,54 @@ End Sub
 ' Date : 4/24/2013
 ' Desc : Checks to see if the macro is up to date
 '---------------------------------------------------------------------------------------
-Sub CheckForUpdates()
+Sub CheckForUpdates(URL As String)
     Dim Ver As String
     Dim LocalVer As String
-    Dim sPath As String
+    Dim Path As String
     Dim LocalPath As String
     Dim FileNum As Integer
+    Dim RegEx As Variant
 
-    sPath = "\\7938-HP02\Shared\Macro Versions\" & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
-    LocalPath = GetWorkbookPath & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & ".txt"
+    Set RegEx = CreateObject("VBScript.RegExp")
+    Ver = Left(DownloadTextFile(URL), 5)
+    RegEx.Pattern = "[0-9]\.[0-0]\.[0-9]"
+    Path = GetWorkbookPath & "Version.txt"
     FileNum = FreeFile
 
-    If FileExists(sPath) = True Then
-        Open sPath For Input As #FileNum
-        While Not EOF(FileNum)
-            Line Input #FileNum, Ver
-        Wend
-        Close FileNum
+    Open Path For Input As #FileNum
+    Line Input #FileNum, LocalVer
+    Close FileNum
 
-        Open LocalPath For Input As #FileNum
-        While Not EOF(FileNum)
-            Line Input #FileNum, LocalVer
-        Wend
-        Close FileNum
-        
-        If Ver <> LocalVer Then
+    If RegEx.test(Ver) Then
+        If CInt(Replace(Ver, ".", "")) > CInt(Replace(LocalVer, ".", "")) Then
             MsgBox Prompt:="An update is available. Please close the macro and get the latest version!", Title:="Update Available"
         End If
     End If
 End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : DownloadTextFile
+' Date : 4/25/2013
+' Desc : Returns the contents of a text file from a website
+'---------------------------------------------------------------------------------------
+Function DownloadTextFile(URL As String) As String
+    Dim success As Boolean
+    Dim responseText As String
+    Dim oHTTP As Variant
+
+    Set oHTTP = CreateObject("WinHttp.WinHttpRequest.5.1")
+
+    oHTTP.Open "GET", URL, False
+    oHTTP.Send
+    success = oHTTP.WaitForResponse()
+
+    If Not success Then
+        DownloadTextFile = ""
+        Exit Function
+    End If
+
+    responseText = oHTTP.responseText
+    Set oHTTP = Nothing
+
+    DownloadTextFile = responseText
+End Function
