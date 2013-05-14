@@ -695,7 +695,7 @@ End Sub
 ' Date : 4/11/2013
 ' Desc : Returns the column number if a match is found
 '---------------------------------------------------------------------------------------
-Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integer
+Function FindColumn(ByVal HeaderText As String, Optional ByRef SearchArea As Range) As Integer
     Dim i As Integer: i = 0
     Dim ColText As String
 
