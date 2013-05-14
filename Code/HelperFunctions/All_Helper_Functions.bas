@@ -6,10 +6,15 @@ Option Explicit
 'Example: "Sleep 1500" will pause for 1.5 seconds
 Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
+'List of custom error messages
+Enum CustErr
+    COLNOTFOUND = 50000
+End Enum
+
 'Used when importing 117 to determine the type of report to pull
 Enum ReportType
     DS
-    Bo
+    BO
 End Enum
 
 '---------------------------------------------------------------------------------------
@@ -606,7 +611,7 @@ Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal I
             Case ReportType.DS:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " DSORDERS.xlsx"
 
-            Case ReportType.Bo:
+            Case ReportType.BO:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
         End Select
 
@@ -662,7 +667,7 @@ End Sub
 '---------------------------------------------------------------------------------------
 Function ReportTypeText(RepType As ReportType) As String
     Select Case RepType
-        Case ReportType.Bo:
+        Case ReportType.BO:
             ReportTypeText = "BO"
         Case ReportType.DS:
             ReportTypeText = "DS"
@@ -710,6 +715,8 @@ Function FindColumn(HeaderText As String, Optional SearchArea As Range) As Integ
             Exit For
         End If
     Next
+    
+    If FindColumn = 0 Then ERR.Raise CustErr.COLNOTFOUND, "FindColumn", HeaderText
 End Function
 
 '---------------------------------------------------------------------------------------
