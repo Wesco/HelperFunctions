@@ -675,6 +675,8 @@ Function ReportTypeText(RepType As ReportType) As String
             ReportTypeText = "BO"
         Case ReportType.DS:
             ReportTypeText = "DS"
+        Case ReportType.ALL:
+            ReportTypeText = "ALL"
     End Select
 End Function
 
@@ -838,3 +840,4 @@ Function DownloadTextFile(URL As String) As String
 
     DownloadTextFile = responseText
 End Function
+
