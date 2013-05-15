@@ -15,6 +15,7 @@ End Enum
 Enum ReportType
     DS
     BO
+    ALL
 End Enum
 
 '---------------------------------------------------------------------------------------
@@ -613,6 +614,9 @@ Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal I
 
             Case ReportType.BO:
                 FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
+                
+            Case ReportType.ALL
+                FileName = "3615 " & Format(Date, "m-dd-yy") & " ALLORDERS.xlsx"
         End Select
 
         sPath = "\\br3615gaps\gaps\3615 117 Report\ByInsideSalesNumber\" & ISN & "\" & FileName
@@ -695,7 +699,7 @@ End Sub
 ' Date : 4/11/2013
 ' Desc : Returns the column number if a match is found
 '---------------------------------------------------------------------------------------
-Function FindColumn(ByVal HeaderText As String, Optional ByRef SearchArea As Range) As Integer
+Function FindColumn(ByVal HeaderText As String, Optional SearchArea As Range) As Integer
     Dim i As Integer: i = 0
     Dim ColText As String
 
