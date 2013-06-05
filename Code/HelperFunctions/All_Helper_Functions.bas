@@ -299,7 +299,7 @@ End Sub
 ' Date : 1/29/2013
 ' Desc : Prompts the user to select a file for import
 '---------------------------------------------------------------------------------------
-Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Optional ShowAllData As Boolean = False)
+Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Optional ShowAllData As Boolean = False, Optional SourceSheet As String = "")
     Dim File As String              'Full path to user selected file
     Dim FileDate As String          'Date the file was last modified
     Dim OldDispAlert As Boolean     'Original state of Application.DisplayAlerts
@@ -311,6 +311,7 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
     If File <> "False" Then
         FileDate = Format(FileDateTime(File), "mm/dd/yy")
         Workbooks.Open File
+        If SourceSheet = "" Then SourceSheet = ActiveSheet.Name
         If ShowAllData = True Then
             On Error Resume Next
             ActiveSheet.AutoFilter.ShowAllData
@@ -318,7 +319,7 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
             ActiveSheet.UsedRange.Rows.Hidden = False
             On Error GoTo 0
         End If
-        ActiveSheet.UsedRange.Copy Destination:=DestRange
+        Sheets(SourceSheet).UsedRange.Copy Destination:=DestRange
         ActiveWorkbook.Close
         ThisWorkbook.Activate
 
