@@ -16,6 +16,7 @@ Enum ReportType
     DS
     BO
     ALL
+    INQ
 End Enum
 
 '---------------------------------------------------------------------------------------
@@ -678,6 +679,8 @@ Function ReportTypeText(RepType As ReportType) As String
             ReportTypeText = "DS"
         Case ReportType.ALL:
             ReportTypeText = "ALL"
+        Case ReportType.INQ:
+            ReportTypeText = "INQ"
     End Select
 End Function
 
@@ -841,4 +844,6 @@ Function DownloadTextFile(URL As String) As String
 
     DownloadTextFile = responseText
 End Function
+
+
 
