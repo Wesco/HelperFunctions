@@ -4,7 +4,7 @@ Option Explicit
 'Used for email function to prevent
 'all emails from being sent at once
 'Example: "Sleep 1500" will pause for 1.5 seconds
-Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 'List of custom error messages
 Enum CustErr
