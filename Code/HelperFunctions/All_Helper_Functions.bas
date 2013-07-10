@@ -6,6 +6,23 @@ Option Explicit
 'Example: "Sleep 1500" will pause for 1.5 seconds
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
+'List of error codes
+Enum Errors
+    USER_INTERRUPT = 18
+    FILE_NOT_FOUND = 53
+    FILE_ALREADY_OPEN = 55
+    FILE_ALREADY_EXISTS = 58
+    DISK_FULL = 63
+    PERMISSION_DENIED = 70
+    PATH_FILE_ACCESS_ERROR = 75
+    PATH_NOT_FOUND = 76
+    ORBJECT_OR_WITH_BLOCK_NOT_SET = 91
+    INVALID_FILE_FORMAT = 321
+    OUT_OF_MEMORY = 31001
+    ERROR_SAVING_FILE = 31036
+    ERROR_LOADING_FROM_FILE = 31037
+End Enum
+
 'List of custom error messages
 Enum CustErr
     COLNOTFOUND = 50000
@@ -156,9 +173,6 @@ Sub ImportGaps()
     Dim FileFound As Boolean        'Indicates whether or not gaps was found
 
     StartTime = Timer
-    dt = Date - iCounter
-    sPath = "\\br3615gaps\gaps\3615 Gaps Download\" & Format(dt, "yyyy") & "\"
-    sName = "3615 " & Format(dt, "m-dd-yy") & ".xlsx"
     FileFound = False
 
     'This error is bypassed so you can determine whether or not the sheet exists
@@ -172,7 +186,7 @@ Sub ImportGaps()
     For iCounter = 0 To 15
         dt = Date - iCounter
         sPath = "\\br3615gaps\gaps\3615 Gaps Download\" & Format(dt, "yyyy") & "\"
-        sName = "3615 " & Format(dt, "m-dd-yy") & ".xlsx"
+        sName = "3615 " & Format(dt, "yyyy-mm-dd") & ".xlsx"
         If FileExists(sPath & sName) Then
             FileFound = True
             Exit For
@@ -204,19 +218,11 @@ Sub ImportGaps()
             Range("A2").Formula = "=C2&D2"
             Range("A2").AutoFill Destination:=Range(Cells(2, 1), Cells(iRows, 1))
             Range(Cells(2, 1), Cells(iRows, 1)).Value = Range(Cells(2, 1), Cells(iRows, 1)).Value
-
-            FillInfo FunctionName:="Gaps", _
-                     FileDate:=Format(dt, "mm/dd/yy"), _
-                     Parameters:="", _
-                     ExecutionTime:=Timer - StartTime, _
-                     Result:="Complete"
         Else
-            MsgBox Prompt:="User interrupt occurred", Title:="Error"
-            ERR.Raise 18
+            ERR.Raise 18, "ImportGaps", "Import canceled"
         End If
     Else
-        MsgBox Prompt:="Gaps could not be found.", Title:="Gaps not found"
-        ERR.Raise 53
+        ERR.Raise 53, "ImportGaps", "Gaps could not be found."
     End If
 
     Application.DisplayAlerts = True
@@ -226,7 +232,7 @@ CREATE_GAPS:
     ThisWorkbook.Sheets.Add After:=Sheets(ThisWorkbook.Sheets.Count)
     ActiveSheet.Name = "Gaps"
     Resume
-
+    
 End Sub
 
 '---------------------------------------------------------------------------------------
