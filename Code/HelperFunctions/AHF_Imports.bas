@@ -86,13 +86,13 @@ End Sub
 ' Date : 1/29/2013
 ' Desc : Prompts the user to select a file for import
 '---------------------------------------------------------------------------------------
-Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Optional ShowAllData As Boolean = False, Optional SourceSheet As String = "")
+Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Optional ShowAllData As Boolean = False, Optional SourceSheet As String = "", Optional FileFilter = "")
     Dim File As String              'Full path to user selected file
     Dim FileDate As String          'Date the file was last modified
     Dim OldDispAlert As Boolean     'Original state of Application.DisplayAlerts
 
     OldDispAlert = Application.DisplayAlerts
-    File = Application.GetOpenFilename()
+    File = Application.GetOpenFilename(FileFilter)
 
     Application.DisplayAlerts = False
     If File <> "False" Then
