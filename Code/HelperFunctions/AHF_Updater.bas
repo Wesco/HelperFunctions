@@ -105,7 +105,7 @@ Sub CheckForUpdates(URL As String, Optional RepoName As String = "")
     Line Input #FileNum, LocalVer
     Close FileNum
 
-    If RegEx.test(Ver) Then
+    If RegEx.Test(Ver) Then
         If Not Ver = LocalVer Then
             MsgBox Prompt:="An update is available. Please close the macro and get the latest version!", Title:="Update Available"
             If Not RepoName = "" Then
