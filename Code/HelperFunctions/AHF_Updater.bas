@@ -92,13 +92,13 @@ Sub CheckForUpdates(RepoName As String, LocalVer As String)
     Set RegEx = CreateObject("VBScript.RegExp")
 
     'Try to get the contents of the text file
-    Ver = DownloadTextFile(URL)
+    Ver = DownloadTextFile("https://raw.github.com/Wesco/" & RepoName & "/master/Version.txt")
     Ver = Replace(Ver, vbLf, "")
     Ver = Replace(Ver, vbCr, "")
 
     'Expression to verify the data retrieved is a version number
     RegEx.Pattern = "^[0-9]+\.[0-9]+\.[0-9]+$"
-    
+
     If RegEx.Test(Ver) Then
         If Not Ver = LocalVer Then
             Result = MsgBox("An update is available. Would you like to download the latest version now?", vbYesNo, "Update Available")
