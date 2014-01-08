@@ -7,7 +7,7 @@ Option Explicit
 ' Desc  : Imports gaps to the workbook containing this macro.
 ' Ex    : ImportGaps
 '---------------------------------------------------------------------------------------
-Sub ImportGaps(Optional Destination As Range)
+Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = True)
     Dim sPath As String     'Gaps file path
     Dim sName As String     'Gaps Sheet Name
     Dim iCounter As Long    'Counter to decrement the date
@@ -59,13 +59,17 @@ Sub ImportGaps(Optional Destination As Range)
             ActiveSheet.UsedRange.Copy Destination:=Destination
             ActiveWorkbook.Close
 
-
             iRows = ActiveSheet.UsedRange.Rows.Count
             Columns(1).Insert
             Range("A1").Value = "SIM"
-            Range("A2").Formula = "=C2&D2"
-            Range("A2").AutoFill Destination:=Range(Cells(2, 1), Cells(iRows, 1))
-            Range(Cells(2, 1), Cells(iRows, 1)).Value = Range(Cells(2, 1), Cells(iRows, 1)).Value
+
+            If SimsAsText = True Then
+                Range("A2:A" & iRows).Formula = "=""=""&""""""""&C2&D2&"""""""""
+            Else
+                Range("A2:A" & iRows).Formula = "=C2&D2"
+            End If
+            
+            Range("A2:A" & iRows).Value = Range("A2:A" & iRows).Value
         Else
             ERR.Raise 18, "ImportGaps", "Import canceled"
         End If
