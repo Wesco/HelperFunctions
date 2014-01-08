@@ -102,9 +102,8 @@ Sub CheckForUpdates(RepoName As String, LocalVer As String)
     If RegEx.Test(Ver) Then
         If Not Ver = LocalVer Then
             Result = MsgBox("An update is available. Would you like to download the latest version now?", vbYesNo, "Update Available")
-
-            Shell "C:\Program Files\Internet Explorer\iexplore.exe http://github.com/Wesco/" & RepoName & "/releases/", vbMaximizedFocus
             If Result = vbYes Then
+                Shell "C:\Program Files\Internet Explorer\iexplore.exe http://github.com/Wesco/" & RepoName & "/releases/", vbMaximizedFocus
                 ThisWorkbook.Saved = True
                 If Workbooks.Count = 1 Then
                     Application.Quit
