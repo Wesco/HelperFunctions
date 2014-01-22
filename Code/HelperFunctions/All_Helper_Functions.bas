@@ -1,6 +1,16 @@
 Attribute VB_Name = "All_Helper_Functions"
 Option Explicit
 
+Private Declare Function ShellExecute _
+                          Lib "shell32.dll" Alias "ShellExecuteA" ( _
+                              ByVal hWnd As Long, _
+                              ByVal Operation As String, _
+                              ByVal FileName As String, _
+                              Optional ByVal Parameters As String, _
+                              Optional ByVal Directory As String, _
+                              Optional ByVal WindowStyle As Long = vbMaximizedFocus _
+                            ) As Long
+
 'List of error codes
 Enum Errors
     USER_INTERRUPT = 18
@@ -166,7 +176,7 @@ End Function
 '---------------------------------------------------------------------------------------
 Sub DeleteColumn(HeaderText As String, Optional SearchArea As Range)
     Dim i As Integer
-    
+
     If TypeName(SearchArea) = "Nothing" Then
         Set SearchArea = Range(Cells(1, 1), Cells(1, ActiveSheet.UsedRange.Columns.Count))
     End If
@@ -208,3 +218,11 @@ Function FindColumn(ByVal HeaderText As String, Optional SearchArea As Range) As
     If FindColumn = 0 Then ERR.Raise CustErr.COLNOTFOUND, "FindColumn", HeaderText
 End Function
 
+'---------------------------------------------------------------------------------------
+' Proc : OpenInBrowser
+' Date : 1/22/2014
+' Desc : Opens a URL in the default browser
+'---------------------------------------------------------------------------------------
+Sub OpenInBrowser(URL As String)
+    ShellExecute 0, URL
+End Sub
