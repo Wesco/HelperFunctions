@@ -224,5 +224,5 @@ End Function
 ' Desc : Opens a URL in the default browser
 '---------------------------------------------------------------------------------------
 Sub OpenInBrowser(URL As String)
-    ShellExecute 0, URL
+    ShellExecute 0, "Open", URL
 End Sub
