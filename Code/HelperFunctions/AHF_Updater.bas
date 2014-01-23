@@ -131,7 +131,12 @@ Sub CheckForUpdates(RepoName As String, LocalVer As String)
 UPDATE_ERROR:
     If MsgBox("An error occured while checking for updates." & vbCrLf & vbCrLf & _
               "Would you like to open the website to download the latest version?", vbYesNo) = vbYes Then
-        ShellExecute 0, "Open", "http://github.com/Wesco/" & RepoName & "/releases/"
+        OpenInBrowser "http://github.com/Wesco/" & RepositoryName & "/releases/"
+        If Workbooks.Count = 1 Then
+            Application.Quit
+        Else
+            ThisWorkbook.Close
+        End If
     End If
 End Sub
 
@@ -161,4 +166,3 @@ Private Function DownloadTextFile(URL As String) As String
 
     DownloadTextFile = responseText
 End Function
-
