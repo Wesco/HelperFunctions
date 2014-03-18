@@ -15,9 +15,9 @@ Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 ' Proc  : Sub Email
 ' Date  : 10/11/2012
 ' Desc  : Sends an email using Outlook
-' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body"
+' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body", SleepTime:=1000
 '---------------------------------------------------------------------------------------
-Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
+Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant, Optional SleepTime As Long = 0)
     Dim s As Variant              'Attachment string if array is passed
     Dim Mail_Object As Variant    'Outlook application object
     Dim Mail_Single As Variant    'Email object
@@ -55,8 +55,11 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
         On Error GoTo 0
     End With
 
-    'Give the email time to send
-    Sleep 1500
+    'Wait if a sleep time was specified
+    If SleepTime > 0 Then
+        Sleep 1500
+    End If
+
     Exit Sub
 
 SEND_FAILED:
@@ -65,4 +68,8 @@ SEND_FAILED:
         .Delete
     End With
     Resume Next
+End Sub
+
+Sub Test()
+    Email "Treische@wesco.com"
 End Sub
