@@ -5,16 +5,28 @@ Option Explicit
 ' Proc  : Function FileExists
 ' Date  : 10/10/2012
 ' Type  : Boolean
-' Desc  : Checks if a file exists
+' Desc  : Checks if a file exists and can be read
 ' Ex    : FileExists "C:\autoexec.bat"
 '---------------------------------------------------------------------------------------
-Function FileExists(ByVal sPath As String) As Boolean
+Function FileExists(ByVal FilePath As String) As Boolean
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+
     'Remove trailing backslash
-    If InStr(Len(sPath), sPath, "\") > 0 Then sPath = Left(sPath, Len(sPath) - 1)
-    'Check to see if the directory exists and return true/false
+    If InStr(Len(FilePath), FilePath, "\") > 0 Then
+        FilePath = Left(FilePath, Len(FilePath) - 1)
+    End If
+
+    'Check to see if the file exists and has read access
     On Error GoTo File_Error
-    If Dir(sPath, vbDirectory) <> "" Then FileExists = True
+    If fso.FileExists(FilePath) Then
+        fso.OpenTextFile(FilePath, 1).Read 0
+        FileExists = True
+    Else
+        FileExists = False
+    End If
     On Error GoTo 0
+
     Exit Function
 
 File_Error:
