@@ -1,15 +1,41 @@
 Attribute VB_Name = "AHF_Mail"
 Option Explicit
 
-'---------------------------------------------------------------------------------------
-' Dep : AHF_File
-'---------------------------------------------------------------------------------------
-
 'Pauses for x# of milliseconds
 'Used for email function to prevent
 'all emails from being sent at once
 'Example: "Sleep 1500" will pause for 1.5 seconds
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+
+'---------------------------------------------------------------------------------------
+' Proc : Exists
+' Date : 3/18/2014
+' Desc : Checks to see if a file exists and has read access
+'---------------------------------------------------------------------------------------
+Private Function Exists(ByVal FilePath As String) As Boolean
+    Dim fso As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+
+    'Remove trailing backslash
+    If InStr(Len(FilePath), FilePath, "\") > 0 Then
+        FilePath = Left(FilePath, Len(FilePath) - 1)
+    End If
+
+    'Check to see if the file exists and has read access
+    On Error GoTo File_Error
+    If fso.FileExists(FilePath) Then
+        fso.OpenTextFile(FilePath, 1).Read 0
+        Exists = True
+    Else
+        Exists = False
+    End If
+    On Error GoTo 0
+
+    Exit Function
+
+File_Error:
+    Exists = False
+End Function
 
 '---------------------------------------------------------------------------------------
 ' Proc  : Sub Email
@@ -60,7 +86,7 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
         Sleep 1500
     End If
 
-    Exit Sub
+    Exit Function
 
 SEND_FAILED:
     With Mail_Single
@@ -68,8 +94,4 @@ SEND_FAILED:
         .Delete
     End With
     Resume Next
-End Sub
-
-Sub Test()
-    Email "Treische@wesco.com"
-End Sub
+End Function
