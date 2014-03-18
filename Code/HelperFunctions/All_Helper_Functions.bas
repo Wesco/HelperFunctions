@@ -143,15 +143,6 @@ Sub ImportModule()
 End Sub
 
 '---------------------------------------------------------------------------------------
-' Proc : EndsWith
-' Date : 3/19/2013
-' Desc : Checks if a string ends in a specified character
-'---------------------------------------------------------------------------------------
-Function EndsWith(ByVal InString As String, ByVal TestString As String) As Boolean
-    EndsWith = (Right$(InString, Len(TestString)) = TestString)
-End Function
-
-'---------------------------------------------------------------------------------------
 ' Proc : ReportTypeText
 ' Date : 4/10/2013
 ' Desc : Returns the report type as a string
