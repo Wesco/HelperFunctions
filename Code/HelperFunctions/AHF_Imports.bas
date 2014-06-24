@@ -10,9 +10,9 @@ Option Explicit
 Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = True)
     Dim Path As String      'Gaps file path
     Dim Name As String      'Gaps Sheet Name
-    Dim iCounter As Long    'Counter to decrement the date
-    Dim TotalRows As Long   'Total number of rows
+    Dim i As Long           'Counter to decrement the date
     Dim dt As Date          'Date for gaps file name and path
+    Dim TotalRows As Long   'Total number of rows
     Dim Result As VbMsgBoxResult    'Yes/No to proceed with old gaps file if current one isn't found
 
 
@@ -25,9 +25,9 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
 
     Application.DisplayAlerts = False
 
-    'Find gaps
-    For iCounter = 0 To 15
-        dt = Date - iCounter
+    'Try to find Gaps
+    For i = 0 To 15
+        dt = Date - i
         Path = "\\br3615gaps\gaps\3615 Gaps Download\" & Format(dt, "yyyy") & "\"
         Name = "3615 " & Format(dt, "yyyy-mm-dd") & ".csv"
         If Exists(Path & Name) Then
@@ -47,6 +47,8 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
         If Result <> vbNo Then
             ThisWorkbook.Activate
             Sheets(Destination.Parent.Name).Select
+            
+            'If there is data on the destination sheet delete it
             If Range("A1").Value <> "" Then
                 Cells.Delete
             End If
@@ -59,6 +61,7 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
             Columns(1).Insert
             Range("A1").Value = "SIM"
 
+            'SIMs are 11 digits and can have leading 0's
             If SimsAsText = True Then
                 Range("A2:A" & TotalRows).Formula = "=""=""&""""""""&RIGHT(""000000"" & C2, 6)&RIGHT(""00000"" & D2, 5)&"""""""""
             Else
@@ -232,9 +235,9 @@ Private Function Exists(ByVal FilePath As String) As Boolean
     On Error GoTo File_Error
     If fso.FileExists(FilePath) Then
         fso.OpenTextFile(FilePath, 1).Read 0
-        FileExists = True
+        Exists = True
     Else
-        FileExists = False
+        Exists = False
     End If
     On Error GoTo 0
 
