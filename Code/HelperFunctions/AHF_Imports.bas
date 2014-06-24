@@ -36,7 +36,7 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
     Next
 
     'Make sure Gaps file was found
-    If FileFound = True Then
+    If Exists(Path & Name) Then
         If dt <> Date Then
             Result = MsgBox( _
                      Prompt:="Gaps from " & Format(dt, "mmm dd, yyyy") & " was found." & vbCrLf & "Would you like to continue?", _
@@ -64,7 +64,7 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
             Else
                 Range("A2:A" & TotalRows).Formula = "=C2&RIGHT(""00000"" & D2, 5)"
             End If
-            
+
             Range("A2:A" & TotalRows).Value = Range("A2:A" & TotalRows).Value
         Else
             Err.Raise 18, "ImportGaps", "Import canceled"
