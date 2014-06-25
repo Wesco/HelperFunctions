@@ -83,7 +83,7 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
 
     'Wait if a sleep time was specified
     If SleepTime > 0 Then
-        Sleep 1500
+        Sleep SleepTime
     End If
 
     Exit Sub
