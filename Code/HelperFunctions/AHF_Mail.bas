@@ -44,7 +44,7 @@ End Function
 ' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body", SleepTime:=1000
 '---------------------------------------------------------------------------------------
 Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant, Optional SleepTime As Long = 0)
-    Dim s As Variant              'Attachment string if array is passed
+    Dim Att As Variant            'Attachment string if array is passed
     Dim Mail_Object As Variant    'Outlook application object
     Dim Mail_Single As Variant    'Email object
 
@@ -55,10 +55,10 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
         'Add attachments
         Select Case TypeName(Attachment)
             Case "Variant()"
-                For Each s In Attachment
-                    If s <> Empty Then
+                For Each Att In Attachment
+                    If Att <> Empty Then
                         If FileExists(s) = True Then
-                            Mail_Single.attachments.Add s
+                            Mail_Single.attachments.Add Att
                         End If
                     End If
                 Next
@@ -86,7 +86,7 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
         Sleep 1500
     End If
 
-    Exit Function
+    Exit Sub
 
 SEND_FAILED:
     With Mail_Single
@@ -94,4 +94,4 @@ SEND_FAILED:
         .Delete
     End With
     Resume Next
-End Function
+End Sub
