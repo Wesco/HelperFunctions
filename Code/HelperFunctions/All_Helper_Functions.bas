@@ -217,3 +217,23 @@ End Function
 Sub OpenInBrowser(URL As String)
     ShellExecute 0, "Open", URL
 End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : ColorToRGB
+' Date : 6/25/2014
+' Desc : Converts excel colors to RGB and prints to the immediate window
+'---------------------------------------------------------------------------------------
+Sub ColorToRGB(ColorValue As Double)
+    Dim HexColor As String
+    Dim R As String
+    Dim G As String
+    Dim B As String
+
+    HexColor = Hex(ColorValue)
+    HexColor = Replace(HexColor, "#", "")
+    R = Val("&H" & Mid(HexColor, 5, 2))
+    G = Val("&H" & Mid(HexColor, 3, 2))
+    B = Val("&H" & Mid(HexColor, 1, 2))
+
+    Debug.Print R & ", " & G & ", " & B
+End Sub
