@@ -103,7 +103,7 @@ Sub CheckForUpdates(RepoName As String, LocalVer As String)
     Set RegEx = CreateObject("VBScript.RegExp")
 
     'Try to get the contents of the text file
-    RemoteVer = DownloadTextFile("https://raw.github.com/Wesco/" & RepoName & "/master/Version.txt")
+    RemoteVer = DownloadTextFile("https://raw.githubusercontent.com/Wesco/" & RepoName & "/master/Version.txt")
     RemoteVer = Replace(RemoteVer, vbLf, "")
     RemoteVer = Replace(RemoteVer, vbCr, "")
 
