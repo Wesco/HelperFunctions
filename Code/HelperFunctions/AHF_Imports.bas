@@ -148,6 +148,7 @@ Sub ImportCsvAsText(Path As String, File As String, Destination As Range)
 
         'Remove the connection
         ActiveWorkbook.Connections(Name).Delete
+        ActiveSheet.QueryTables(ActiveSheet.QueryTables.Count).Delete
     Else
         Err.Raise 53, "OpenCsvAsText", "File not found"
     End If
