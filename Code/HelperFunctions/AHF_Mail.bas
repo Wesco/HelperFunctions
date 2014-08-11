@@ -57,14 +57,14 @@ Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optio
             Case "Variant()"
                 For Each Att In Attachment
                     If Att <> Empty Then
-                        If FileExists(Att) = True Then
+                        If Exists(Att) = True Then
                             Mail_Single.attachments.Add Att
                         End If
                     End If
                 Next
             Case "String"
                 If Attachment <> Empty Then
-                    If FileExists(Attachment) = True Then
+                    If Exists(Attachment) = True Then
                         Mail_Single.attachments.Add Attachment
                     End If
                 End If
