@@ -7,7 +7,7 @@ Option Explicit
 ' Desc  : Imports gaps to the workbook containing this macro.
 ' Ex    : ImportGaps
 '---------------------------------------------------------------------------------------
-Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = True)
+Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = True, Optional Branch As String = "3615")
     Dim Path As String      'Gaps file path
     Dim Name As String      'Gaps Sheet Name
     Dim i As Long           'Counter to decrement the date
@@ -28,8 +28,8 @@ Sub ImportGaps(Optional Destination As Range, Optional SimsAsText As Boolean = T
     'Try to find Gaps
     For i = 0 To 15
         dt = Date - i
-        Path = "\\br3615gaps\gaps\3615 Gaps Download\" & Format(dt, "yyyy") & "\"
-        Name = "3615 " & Format(dt, "yyyy-mm-dd") & ".csv"
+        Path = "\\br3615gaps\gaps\" & Branch & " Gaps Download\" & Format(dt, "yyyy") & "\"
+        Name = Branch & " " & Format(dt, "yyyy-mm-dd") & ".csv"
         If Exists(Path & Name) Then
             Exit For
         End If
