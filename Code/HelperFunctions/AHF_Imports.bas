@@ -122,6 +122,7 @@ Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRn
     Dim File As String
     Dim DPC As String
     Dim ISN As String
+    Dim ORD As String
 
     Path = "\\br3615gaps\gaps\" & Branch & " 117 Report\"
     File = Branch & " " & Format(RepDate, "yyyy-mm-dd")
@@ -149,10 +150,11 @@ Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRn
         Else
             Path = Path & "ByCustomer" & "\ALL\"
         End If
+        
     ElseIf Seq = ByInsideSalesperson Then
         If SeqRng = One Then
             'Prompt the user for the inside sales number
-            ISN = InputBox(Prompt:="Entery an inside sales number", Title:="ISN Entry")
+            ISN = InputBox(Prompt:="Enter an inside sales number", Title:="ISN Entry")
             If ISN = "" Then
                 Err.Raise 18, "Import117", "User canceled ISN entry."
             End If
@@ -160,12 +162,18 @@ Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRn
         Else
             Path = Path & "ByInsideSalesperson" & "\ALL\"
         End If
+        
     ElseIf Seq = ByOrder Then
+        'Prompt the user for the order number
+        ORD = InputBox(Prompt:="Enter an order number", Title:="ORD Entry")
         Path = Path & "ByOrder" & "\"
+        
     ElseIf Seq = ByOrderDate Then
         Path = Path & "ByOrderDate" & "\"
+        
     ElseIf Seq = ByOutsideSalesperson Then
         Path = Path & "ByOutsideSalesperson" & "\"
+        
     End If
 
     'Set file based on parameters
