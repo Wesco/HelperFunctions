@@ -1,6 +1,35 @@
 Attribute VB_Name = "AHF_Imports"
 Option Explicit
 
+'Used by Import117
+Enum Sequence
+    ByOrder
+    ByCustomer
+    ByOrderDate
+    ByInsideSalesperson
+    ByOutsideSalesperson
+End Enum
+
+'Used by Import117
+Enum SeqRange
+    One
+    Many
+End Enum
+
+'Used by Import117
+Enum Criteria
+    AllOrders
+    BackOrders
+    DSOrders
+    Inquiries
+    CreditMemos
+    OpenTickets
+    ShippedNotInvoiced
+    Unreleased
+    SpecialOrders
+    AssembleHold
+End Enum
+
 '---------------------------------------------------------------------------------------
 ' Proc  : Sub ImportGaps
 ' Date  : 12/12/2012
@@ -81,6 +110,93 @@ CREATE_GAPS:
     ActiveSheet.Name = "Gaps"
     Resume
 
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : Import117
+' Auth : TReische
+' Desc : Imports the specified 117 report to the macro workbook
+'---------------------------------------------------------------------------------------
+Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRng As SeqRange = SeqRange.Many, Optional Branch As String = "3615", Optional Detail As Boolean = True)
+    Dim Path As String
+    Dim File As String
+    Dim DPC As String
+    Dim ISN As String
+
+    Path = "\\br3615gaps\gaps\" & Branch & " 117 Report\"
+    File = Branch & " " & Format(RepDate, "yyyy-mm-dd")
+
+    'Append detail or summary to path
+    If Detail = True Then
+        Path = Path & "DETAIL" & "\"
+    Else
+        Path = Path & "SUMMARY" & "\"
+    End If
+
+    If Seq = ByCustomer Then
+        If SeqRng = One Then
+            'Prompt the user for the DPC number
+            DPC = InputBox(Prompt:="Enter a DPC", Title:="DPC Entry")
+            If DPC <> "" Then
+                'Append leading 0's if the user didn't enter them
+                If Len(DPC) <> 5 Then
+                    DPC = Right("00000" & DPC, 5)
+                End If
+            Else
+                Err.Raise 18, "Import117", "User canceled DPC entry."
+            End If
+            Path = Path & "ByCustomer" & "\" & DPC & "\"
+        Else
+            Path = Path & "ByCustomer" & "\ALL\"
+        End If
+    ElseIf Seq = ByInsideSalesperson Then
+        If SeqRng = One Then
+            'Prompt the user for the inside sales number
+            ISN = InputBox(Prompt:="Entery an inside sales number", Title:="ISN Entry")
+            If ISN = "" Then
+                Err.Raise 18, "Import117", "User canceled ISN entry."
+            End If
+            Path = Path & "ByInsideSalesperson" & "\" & ISN & "\"
+        Else
+            Path = Path & "ByInsideSalesperson" & "\ALL\"
+        End If
+    ElseIf Seq = ByOrder Then
+        Path = Path & "ByOrder" & "\"
+    ElseIf Seq = ByOrderDate Then
+        Path = Path & "ByOrderDate" & "\"
+    ElseIf Seq = ByOutsideSalesperson Then
+        Path = Path & "ByOutsideSalesperson" & "\"
+    End If
+
+    'Set file based on parameters
+    If Crit = AllOrders Then
+        File = File & " ALLORDERS" & ".csv"
+    ElseIf Crit = AssembleHold Then
+        File = File & " ASSEMBLEHOLD" & ".csv"
+    ElseIf Crit = BackOrders Then
+        File = File & " BACKORDERS" & ".csv"
+    ElseIf Crit = CreditMemos Then
+        File = File & " CREDITMEMOS" & ".csv"
+    ElseIf Crit = DSOrders Then
+        File = File & " DSORDERS" & ".csv"
+    ElseIf Crit = Inquiries Then
+        File = File & "INQUIRIES" & ".csv"
+    ElseIf Crit = OpenTickets Then
+        File = File & " OPENTICKETS" & ".csv"
+    ElseIf Crit = ShippedNotInvoiced Then
+        File = File & " SHIPPEDNOTINVOICED" & ".csv"
+    ElseIf Crit = SpecialOrders Then
+        File = File & " SPECIALORDERS" & ".csv"
+    ElseIf Crit = Unreleased Then
+        File = File & " UNRELEASED" & ".csv"
+    End If
+
+    'Import the file if it is found
+    If Exists(Path & File) Then
+        Debug.Print Path & File
+    Else
+        Err.Raise 53, "Import117", "117 report not found."
+    End If
 End Sub
 
 '---------------------------------------------------------------------------------------
