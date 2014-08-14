@@ -117,11 +117,12 @@ End Sub
 ' Auth : TReische
 ' Desc : Imports the specified 117 report to the macro workbook
 '---------------------------------------------------------------------------------------
-Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRng As SeqRange = SeqRange.Many, Optional Branch As String = "3615", Optional Detail As Boolean = True)
+Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date = Now, Optional SeqRng As SeqRange = SeqRange.Many, Optional Branch As String = "3615", Optional Detail As Boolean = True)
     Dim Path As String
     Dim File As String
     Dim DPC As String
     Dim ISN As String
+    Dim OSN As String
     Dim ORD As String
 
     Path = "\\br3615gaps\gaps\" & Branch & " 117 Report\"
@@ -134,47 +135,59 @@ Sub Import117(Crit As Criteria, Seq As Sequence, RepDate As Date, Optional SeqRn
         Path = Path & "SUMMARY" & "\"
     End If
 
-    If Seq = ByCustomer Then
-        If SeqRng = One Then
-            'Prompt the user for the DPC number
-            DPC = InputBox(Prompt:="Enter a DPC", Title:="DPC Entry")
-            If DPC <> "" Then
-                'Append leading 0's if the user didn't enter them
-                If Len(DPC) <> 5 Then
+    Select Case Seq
+        Case ByCustomer
+            If SeqRng = One Then
+                DPC = InputBox(Prompt:="Enter a DPC", Title:="DPC Entry")
+                If DPC = "" Then
+                    Err.Raise 18, "Import117", "User canceled DPC entry."
+                Else
                     DPC = Right("00000" & DPC, 5)
                 End If
+                Path = Path & "ByCustomer" & "\" & DPC & "\"
             Else
-                Err.Raise 18, "Import117", "User canceled DPC entry."
+                Path = Path & "ByCustomer\ALL\"
             End If
-            Path = Path & "ByCustomer" & "\" & DPC & "\"
-        Else
-            Path = Path & "ByCustomer" & "\ALL\"
-        End If
-        
-    ElseIf Seq = ByInsideSalesperson Then
-        If SeqRng = One Then
-            'Prompt the user for the inside sales number
-            ISN = InputBox(Prompt:="Enter an inside sales number", Title:="ISN Entry")
-            If ISN = "" Then
-                Err.Raise 18, "Import117", "User canceled ISN entry."
+
+        Case ByInsideSalesperson
+            If SeqRng = One Then
+                ISN = InputBox(Prompt:="Enter an inside sales number", Title:="ISN Entry")
+                If ISN = "" Then
+                    Err.Raise 18, "Import117", "User canceled ISN entry."
+                End If
+                Path = Path & "ByInsideSalesperson\" & ISN & "\"
+            Else
+                Path = Path & "ByInsideSalesperson\ALL\"
             End If
-            Path = Path & "ByInsideSalesperson" & "\" & ISN & "\"
-        Else
-            Path = Path & "ByInsideSalesperson" & "\ALL\"
-        End If
-        
-    ElseIf Seq = ByOrder Then
-        'Prompt the user for the order number
-        ORD = InputBox(Prompt:="Enter an order number", Title:="ORD Entry")
-        Path = Path & "ByOrder" & "\"
-        
-    ElseIf Seq = ByOrderDate Then
-        Path = Path & "ByOrderDate" & "\"
-        
-    ElseIf Seq = ByOutsideSalesperson Then
-        Path = Path & "ByOutsideSalesperson" & "\"
-        
-    End If
+
+        Case ByOrder
+            If SeqRng = One Then
+                ORD = InputBox(Prompt:="Enter an order number", Title:="ORD Entry")
+                If ORD = "" Then
+                    Err.Raise 18, "Import117", "User canceled ORD entry."
+                Else
+                    ORD = Right("000000" & ORD, 6)
+                End If
+                Path = Path & "ByOrder\" & ORD & "\"
+            Else
+                Path = Path & "ByOrder\ALL\"
+            End If
+
+        Case ByOrderDate
+            Path = Path & "ByOrderDate\"
+            File = File & Branch & " " & Format(RepDate, "yyyy-mm-dd")
+
+        Case ByOutsideSalesperson
+            If SeqRng = One Then
+                OSN = InputBox(Prompt:="Enter an ouside sales number.", Title:="OSN Entry")
+                If OSN = "" Then
+                    Err.Raise 18, "Import117", "User canceled OSN entry."
+                End If
+                Path = Path & "ByOutsideSalesperson\" & OSN & "\"
+            Else
+                Path = Path & "ByOutsideSalesperson\ALL\"
+            End If
+    End Select
 
     'Set file based on parameters
     If Crit = AllOrders Then
