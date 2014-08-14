@@ -349,51 +349,6 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
 End Sub
 
 '---------------------------------------------------------------------------------------
-' Proc : Import117byISN
-' Date : 4/10/2013
-' Desc : Imports the most recent 117 report for the specified sales number
-'---------------------------------------------------------------------------------------
-Sub Import117byISN(RepType As ReportType, Destination As Range, Optional ByVal ISN As String = "", Optional Cancel As Boolean = False)
-    Dim sPath As String
-    Dim FileName As String
-
-    If ISN = "" And Cancel = False Then
-        ISN = InputBox("Inside Sales Number:", "Please enter the ISN#")
-    Else
-        If ISN = "" Then
-            Err.Raise 53
-        End If
-    End If
-
-    If ISN <> "" Then
-        Select Case RepType
-            Case ReportType.DS:
-                FileName = "3615 " & Format(Date, "m-dd-yy") & " DSORDERS.xlsx"
-
-            Case ReportType.BO:
-                FileName = "3615 " & Format(Date, "m-dd-yy") & " BACKORDERS.xlsx"
-
-            Case ReportType.ALL
-                FileName = "3615 " & Format(Date, "m-dd-yy") & " ALLORDERS.xlsx"
-        End Select
-
-        sPath = "\\br3615gaps\gaps\3615 117 Report\ByInsideSalesNumber\" & ISN & "\" & FileName
-
-        If Exists(sPath) Then
-            Workbooks.Open sPath
-            ActiveSheet.UsedRange.Copy Destination:=Destination
-            Application.DisplayAlerts = False
-            ActiveWorkbook.Close
-            Application.DisplayAlerts = True
-        Else
-            MsgBox Prompt:=ReportTypeText(RepType) & " report not found.", Title:="Error 53"
-        End If
-    Else
-        Err.Raise 18
-    End If
-End Sub
-
-'---------------------------------------------------------------------------------------
 ' Proc : Import473
 ' Date : 4/11/2013
 ' Desc : Imports a 473 report from the current day
