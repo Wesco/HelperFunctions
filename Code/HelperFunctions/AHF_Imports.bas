@@ -115,15 +115,29 @@ End Sub
 '---------------------------------------------------------------------------------------
 ' Proc : Import117
 ' Auth : TReische
-' Desc : Imports the specified 117 report to the macro workbook
+' Desc : Imports the specified 117 report
 '---------------------------------------------------------------------------------------
-Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date = Now, Optional SeqRng As SeqRange = SeqRange.Many, Optional Branch As String = "3615", Optional Detail As Boolean = True)
+Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optional SeqRng As SeqRange = SeqRange.Many, _
+              Optional Branch As String = "3615", Optional Detail As Boolean = True, Optional Destination As Range)
     Dim Path As String
     Dim File As String
     Dim DPC As String
     Dim ISN As String
     Dim OSN As String
     Dim ORD As String
+
+
+    'Make sure destination is set
+    On Error GoTo CREATE_SHEET
+    If TypeName(Destination) = "Nothing" Then
+        Set Destination = ThisWorkbook.Sheets("117").Range("A1")
+    End If
+    On Error GoTo 0
+
+    'If RepDate was not set then set its value to today
+    If RepDate = "12:00:00 AM" Then
+        RepDate = Now
+    End If
 
     Path = "\\br3615gaps\gaps\" & Branch & " 117 Report\"
     File = Branch & " " & Format(RepDate, "yyyy-mm-dd")
@@ -175,7 +189,6 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date = Now,
 
         Case ByOrderDate
             Path = Path & "ByOrderDate\"
-            File = File & Branch & " " & Format(RepDate, "yyyy-mm-dd")
 
         Case ByOutsideSalesperson
             If SeqRng = One Then
@@ -214,10 +227,16 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date = Now,
 
     'Import the file if it is found
     If Exists(Path & File) Then
-        Debug.Print Path & File
+        ImportCsvAsText Path, File, Destination
     Else
         Err.Raise 53, "Import117", "117 report not found."
     End If
+    Exit Sub
+
+CREATE_SHEET:
+    ThisWorkbook.Sheets.Add After:=Sheets(ThisWorkbook.Sheets.Count)
+    ActiveSheet.Name = "117"
+    Resume
 End Sub
 
 '---------------------------------------------------------------------------------------
@@ -256,7 +275,7 @@ Sub ImportCsvAsText(Path As String, File As String, Destination As Range)
         Next
 
         'Import CSV
-        With ActiveSheet.QueryTables.Add(Connection:="TEXT;" & Path & File, Destination:=Destination)
+        With Sheets(Destination.Parent.Name).QueryTables.Add(Connection:="TEXT;" & Path & File, Destination:=Destination)
             .Name = Name
             .FieldNames = True
             .RowNumbers = False
@@ -285,7 +304,7 @@ Sub ImportCsvAsText(Path As String, File As String, Destination As Range)
 
         'Remove the connection
         ActiveWorkbook.Connections(Name).Delete
-        ActiveSheet.QueryTables(ActiveSheet.QueryTables.Count).Delete
+        Sheets(Destination.Parent.Name).QueryTables(Sheets(Destination.Parent.Name).QueryTables.Count).Delete
     Else
         Err.Raise 53, "OpenCsvAsText", "File not found"
     End If
