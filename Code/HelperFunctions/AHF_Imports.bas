@@ -118,13 +118,9 @@ End Sub
 ' Desc : Imports the specified 117 report
 '---------------------------------------------------------------------------------------
 Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optional SeqRng As SeqRange = SeqRange.Many, _
-              Optional Branch As String = "3615", Optional Detail As Boolean = True, Optional Destination As Range)
+              Optional SeqData As String, Optional Branch As String, Optional Detail As Boolean = True, Optional Destination As Range)
     Dim Path As String
     Dim File As String
-    Dim DPC As String
-    Dim ISN As String
-    Dim OSN As String
-    Dim ORD As String
 
 
     'Make sure destination is set
@@ -137,6 +133,13 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optio
     'If RepDate was not set then set its value to today
     If RepDate = "12:00:00 AM" Then
         RepDate = Now
+    End If
+
+    If Branch = "" Then
+        Branch = InputBox("Enter your branch number", "Branch Entry")
+        If Branch = "" Then
+            Err.Raise 18, "Import117", "User canceled branch entry."
+        End If
     End If
 
     Path = "\\br3615gaps\gaps\" & Branch & " 117 Report\"
@@ -152,37 +155,37 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optio
     Select Case Seq
         Case ByCustomer
             If SeqRng = One Then
-                DPC = InputBox(Prompt:="Enter a DPC", Title:="DPC Entry")
-                If DPC = "" Then
+                If SeqData = "" Then SeqData = InputBox(Prompt:="Enter a DPC", Title:="DPC Entry")
+                If SeqData = "" Then
                     Err.Raise 18, "Import117", "User canceled DPC entry."
                 Else
-                    DPC = Right("00000" & DPC, 5)
+                    SeqData = Right("00000" & SeqData, 5)
                 End If
-                Path = Path & "ByCustomer" & "\" & DPC & "\"
+                Path = Path & "ByCustomer" & "\" & SeqData & "\"
             Else
                 Path = Path & "ByCustomer\ALL\"
             End If
 
         Case ByInsideSalesperson
             If SeqRng = One Then
-                ISN = InputBox(Prompt:="Enter an inside sales number", Title:="ISN Entry")
-                If ISN = "" Then
+                If SeqData = "" Then SeqData = InputBox(Prompt:="Enter an inside sales number", Title:="ISN Entry")
+                If SeqData = "" Then
                     Err.Raise 18, "Import117", "User canceled ISN entry."
                 End If
-                Path = Path & "ByInsideSalesperson\" & ISN & "\"
+                Path = Path & "ByInsideSalesperson\" & SeqData & "\"
             Else
                 Path = Path & "ByInsideSalesperson\ALL\"
             End If
 
         Case ByOrder
             If SeqRng = One Then
-                ORD = InputBox(Prompt:="Enter an order number", Title:="ORD Entry")
-                If ORD = "" Then
+                If SeqData = "" Then SeqData = InputBox(Prompt:="Enter an order number", Title:="ORD Entry")
+                If SeqData = "" Then
                     Err.Raise 18, "Import117", "User canceled ORD entry."
                 Else
-                    ORD = Right("000000" & ORD, 6)
+                    SeqData = Right("000000" & SeqData, 6)
                 End If
-                Path = Path & "ByOrder\" & ORD & "\"
+                Path = Path & "ByOrder\" & SeqData & "\"
             Else
                 Path = Path & "ByOrder\ALL\"
             End If
@@ -192,11 +195,11 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optio
 
         Case ByOutsideSalesperson
             If SeqRng = One Then
-                OSN = InputBox(Prompt:="Enter an ouside sales number.", Title:="OSN Entry")
-                If OSN = "" Then
+                If SeqData = "" Then SeqData = InputBox(Prompt:="Enter an ouside sales number.", Title:="OSN Entry")
+                If SeqData = "" Then
                     Err.Raise 18, "Import117", "User canceled OSN entry."
                 End If
-                Path = Path & "ByOutsideSalesperson\" & OSN & "\"
+                Path = Path & "ByOutsideSalesperson\" & SeqData & "\"
             Else
                 Path = Path & "ByOutsideSalesperson\ALL\"
             End If
@@ -425,3 +428,4 @@ Private Function Exists(ByVal FilePath As String) As Boolean
 File_Error:
     Exists = False
 End Function
+
