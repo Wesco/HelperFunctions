@@ -325,8 +325,8 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
 
     OldDispAlert = Application.DisplayAlerts
     File = Application.GetOpenFilename(FileFilter)
-
     Application.DisplayAlerts = False
+
     If File <> "False" Then
         FileDate = Format(FileDateTime(File), "mm/dd/yy")
         Workbooks.Open File
@@ -338,7 +338,9 @@ Sub UserImportFile(DestRange As Range, Optional DelFile As Boolean = False, Opti
             ActiveSheet.UsedRange.Rows.Hidden = False
             On Error GoTo 0
         End If
+
         Sheets(SourceSheet).UsedRange.Copy Destination:=DestRange
+        ActiveWorkbook.Saved = True
         ActiveWorkbook.Close
         ThisWorkbook.Activate
 
