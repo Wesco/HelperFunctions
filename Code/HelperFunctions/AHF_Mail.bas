@@ -7,6 +7,11 @@ Option Explicit
 'Example: "Sleep 1500" will pause for 1.5 seconds
 Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
+Public Enum Mail_Type
+    OTLK
+    SMTP
+End Enum
+
 '---------------------------------------------------------------------------------------
 ' Proc : Exists
 ' Date : 3/18/2014
@@ -43,55 +48,127 @@ End Function
 ' Desc  : Sends an email using Outlook
 ' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body", SleepTime:=1000
 '---------------------------------------------------------------------------------------
-Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant, Optional SleepTime As Long = 0)
-    Dim Att As Variant            'Attachment string if array is passed
-    Dim Mail_Object As Variant    'Outlook application object
-    Dim Mail_Single As Variant    'Email object
+Sub Email(Optional SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, _
+          Optional Attachment As Variant, Optional SleepTime As Long = 0, Optional MailType As Mail_Type = Mail_Type.OTLK)
 
-    Set Mail_Object = CreateObject("Outlook.Application")
-    Set Mail_Single = Mail_Object.CreateItem(0)
-
-    With Mail_Single
-        'Add attachments
-        Select Case TypeName(Attachment)
-            Case "Variant()"
-                For Each Att In Attachment
-                    If Att <> Empty Then
-                        If Exists(Att) = True Then
-                            Mail_Single.attachments.Add Att
-                        End If
-                    End If
-                Next
-            Case "String"
-                If Attachment <> Empty Then
-                    If Exists(Attachment) = True Then
-                        Mail_Single.attachments.Add Attachment
-                    End If
-                End If
-        End Select
-
-        'Setup email
-        .Subject = Subject
-        .To = SendTo
-        .CC = CC
-        .BCC = BCC
-        .HTMLbody = Body
-        On Error GoTo SEND_FAILED
-        .Send
-        On Error GoTo 0
-    End With
+    If MailType = OTLK Then
+        OTLK_Mail SendTo, CC, BCC, Subject, Body, Attachment
+    ElseIf MailType = SMTP Then
+        SMTP_Mail SendTo, CC, BCC, Subject, Body, Attachment
+    End If
 
     'Wait if a sleep time was specified
     If SleepTime > 0 Then
         Sleep SleepTime
     End If
+End Sub
 
+'---------------------------------------------------------------------------------------
+' Proc : OTLK_Mail
+' Date : 10/21/2014
+' Desc : Send email using outlook
+'---------------------------------------------------------------------------------------
+Private Sub OTLK_Mail(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
+    Dim Mail_Object As Variant    'Outlook application object
+    Dim Mail_Single As Variant    'Email object
+    Dim Att As Variant            'Attachment string if array is passed
+
+    Set Mail_Object = CreateObject("Outlook.Application")
+    Set Mail_Single = Mail_Object.CreateItem(0)
+
+    'Add attachments
+    Select Case TypeName(Attachment)
+        Case "Variant()"
+            For Each Att In Attachment
+                If Att <> Empty Then
+                    If Exists(Att) = True Then
+                        Mail_Single.attachments.Add Att
+                    End If
+                End If
+            Next
+        Case "String"
+            If Attachment <> Empty Then
+                If Exists(Attachment) = True Then
+                    Mail_Single.attachments.Add Attachment
+                End If
+            End If
+    End Select
+
+    'Setup email
+    With Mail_Single
+        .Subject = Subject
+        .To = SendTo
+        .CC = CC
+        .BCC = BCC
+        .HTMLbody = Body
+    End With
+
+    On Error GoTo SEND_FAILED
+    Mail_Single.Send
+    On Error GoTo 0
     Exit Sub
 
 SEND_FAILED:
-    With Mail_Single
-        MsgBox "Mail to '" & .To & "' could not be sent."
-        .Delete
+    MsgBox "Mail to '" & Mail_Single.To & "' could not be sent."
+    Mail_Single.Delete
+End Sub
+
+'---------------------------------------------------------------------------------------
+' Proc : SMTP_Mail
+' Date : 10/21/2014
+' Desc : Send email using SMTP
+'---------------------------------------------------------------------------------------
+Private Sub SMTP_Mail(Optional SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
+    Const cdoSendUsingPort As Integer = 2   'Send the message using the network (SMTP over the network).
+    Const cdoNTLM As Integer = 2            'NTLM Auth
+    Const cdoSchema As String = "http://schemas.microsoft.com/cdo/configuration/"
+    Dim objMessage As Object
+    Dim Att As Variant
+
+    Set objMessage = CreateObject("CDO.Message")
+
+    With objMessage
+        .Subject = Subject
+        .From = Environ("username") & "@wesco.com"
+        .To = SendTo
+        .CC = CC
+        .BCC = BCC
+        .HTMLbody = Body
     End With
-    Resume Next
+
+    'Add attachments
+    Select Case TypeName(Attachment)
+        Case "Variant()"
+            For Each Att In Attachment
+                If Att <> Empty Then
+                    If Exists(Att) = True Then
+                        objMessage.AddAttachment Att
+                    End If
+                End If
+            Next
+        Case "String"
+            If Attachment <> Empty Then
+                If Exists(Attachment) = True Then
+                    objMessage.AddAttachment Attachment
+                End If
+            End If
+    End Select
+
+    With objMessage.Configuration.Fields
+        .Item(cdoSchema & "sendusing") = cdoSendUsingPort
+        .Item(cdoSchema & "smtpserver") = "email.wescodist.com"
+        .Item(cdoSchema & "smtpauthenticate") = cdoNTLM
+        .Item(cdoSchema & "smtpserverport") = 25
+        .Item(cdoSchema & "smtpconnectiontimeout") = 15
+        .Update
+    End With
+
+    On Error GoTo SEND_FAILED
+    objMessage.Send
+    On Error GoTo SEND_FAILED
+    Exit Sub
+
+SEND_FAILED:
+    MsgBox "Mail to '" & Mail_Single.To & "' could not be sent."
+    Set objMessage = Nothing
 End Sub
