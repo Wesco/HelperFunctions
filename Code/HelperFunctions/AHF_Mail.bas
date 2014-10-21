@@ -165,10 +165,10 @@ Private Sub SMTP_Mail(Optional SendTo As String, Optional CC As String, Optional
 
     On Error GoTo SEND_FAILED
     objMessage.Send
-    On Error GoTo SEND_FAILED
+    On Error GoTo 0
     Exit Sub
 
 SEND_FAILED:
-    MsgBox "Mail to '" & Mail_Single.To & "' could not be sent."
+    MsgBox "Mail to '" & objMessage.To & "' could not be sent."
     Set objMessage = Nothing
 End Sub
