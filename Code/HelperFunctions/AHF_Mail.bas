@@ -48,7 +48,7 @@ End Function
 ' Desc  : Sends an email using Outlook
 ' Ex    : Email SendTo:=email@example.com, Subject:="example email", Body:="Email Body", SleepTime:=1000
 '---------------------------------------------------------------------------------------
-Sub Email(Optional SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, _
+Sub Email(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, _
           Optional Attachment As Variant, Optional SleepTime As Long = 0, Optional MailType As Mail_Type = Mail_Type.OTLK)
 
     If MailType = OTLK Then
@@ -118,7 +118,7 @@ End Sub
 ' Date : 10/21/2014
 ' Desc : Send email using SMTP
 '---------------------------------------------------------------------------------------
-Private Sub SMTP_Mail(Optional SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
+Private Sub SMTP_Mail(SendTo As String, Optional CC As String, Optional BCC As String, Optional Subject As String, Optional Body As String, Optional Attachment As Variant)
     Const cdoSendUsingPort As Integer = 2   'Send the message using the network (SMTP over the network).
     Const cdoNTLM As Integer = 2            'NTLM Auth
     Const cdoSchema As String = "http://schemas.microsoft.com/cdo/configuration/"
