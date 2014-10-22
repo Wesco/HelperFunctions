@@ -165,7 +165,7 @@ End Function
 ' Date : 4/11/2013
 ' Desc : Removes a column based on text in the column header
 '---------------------------------------------------------------------------------------
-Sub DeleteColumn(HeaderText As String, Optional SearchArea As Range)
+Sub DeleteColumn(ByVal HeaderText As String, Optional SearchArea As Range)
     Dim i As Integer
 
     If TypeName(SearchArea) = "Nothing" Then
