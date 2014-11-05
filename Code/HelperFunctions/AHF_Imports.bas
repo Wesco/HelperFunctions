@@ -31,6 +31,54 @@ Enum Criteria
 End Enum
 
 '---------------------------------------------------------------------------------------
+' Proc : SeqToText
+' Date : 10/13/2014
+' Desc : Converts Sequence to a string
+'---------------------------------------------------------------------------------------
+Private Function SeqToText(Seq As Sequence) As String
+    If Seq = ByCustomer Then
+
+    ElseIf Seq = ByInsideSalesperson Then
+        SeqToText = "ByInsideSalesperson"
+    ElseIf Seq = ByOrder Then
+        SeqToText = "ByOrder"
+    ElseIf Seq = ByOrderDate Then
+        SeqToText = "ByOrderDate"
+    ElseIf Seq = ByOutsideSalesperson Then
+        SeqToText = "ByOutsideSalesperson"
+    End If
+End Function
+
+'---------------------------------------------------------------------------------------
+' Proc : CritToText
+' Date : 10/13/2014
+' Desc : Converts Critera Enum to a string
+'---------------------------------------------------------------------------------------
+Private Function CritToText(Crit As Criteria) As String
+    If Crit = AllOrders Then
+        CritToText = "AllOrders"
+    ElseIf Crit = AssembleHold Then
+        CritToText = "AssembleHold"
+    ElseIf Crit = BackOrders Then
+        CritToText = "BackOrders"
+    ElseIf Crit = CreditMemos Then
+        CritToText = "CreditMemos"
+    ElseIf Crit = DSOrders Then
+        CritToText = "DSOrders"
+    ElseIf Crit = Inquiries Then
+        CritToText = "Inquiries"
+    ElseIf Crit = OpenTickets Then
+        CritToText = "OpenTickets"
+    ElseIf Crit = ShippedNotInvoiced Then
+        CritToText = "ShippedNotInvoiced"
+    ElseIf Crit = SpecialOrders Then
+        CritToText = "SpecialOrders"
+    ElseIf Crit = Unreleased Then
+        CritToText = "Unreleased"
+    End If
+End Function
+
+'---------------------------------------------------------------------------------------
 ' Proc  : Sub ImportGaps
 ' Date  : 12/12/2012
 ' Desc  : Imports gaps to the workbook containing this macro.
@@ -232,7 +280,7 @@ Sub Import117(Crit As Criteria, Seq As Sequence, Optional RepDate As Date, Optio
     If Exists(Path & File) Then
         ImportCsvAsText Path, File, Destination
     Else
-        Err.Raise 53, "Import117", "117 report not found."
+        Err.Raise 53, "Import117", "117 not found (" & CritToText(Crit) & " " & SeqToText(Seq) & ")"
     End If
     Exit Sub
 
@@ -385,13 +433,19 @@ End Sub
 ' Date : 4/22/2013
 ' Desc : Imports the supplier contact master list
 '---------------------------------------------------------------------------------------
-Sub ImportSupplierContacts(Destination As Range)
-    Const sPath As String = "\\br3615gaps\gaps\Contacts\Supplier Contact Master.xlsx"
+Sub ImportSupplierContacts(Destination As Range, Optional Branch As String)
     Dim PrevDispAlerts As Boolean
+    Dim Path As String
+
+    If Branch = "" Then
+        Path = "\\br3615gaps\gaps\Contacts\Supplier Contact Master.xlsx"
+    Else
+        Path = "\\br3615gaps\gaps\" & Branch & " Contacts\Supplier Contact Master.xlsx"
+    End If
 
     PrevDispAlerts = Application.DisplayAlerts
 
-    Workbooks.Open sPath
+    Workbooks.Open Path
     ActiveSheet.UsedRange.Copy Destination:=Destination
 
     Application.DisplayAlerts = False
@@ -430,4 +484,3 @@ Private Function Exists(ByVal FilePath As String) As Boolean
 File_Error:
     Exists = False
 End Function
-
